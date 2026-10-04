@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0d16">
+<link rel="manifest" href="admin.webmanifest">
+<link rel="apple-touch-icon" href="admin-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OO Yönetim">
 <title>Ortak Oyuncu · Yönetim</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -96,7 +103,7 @@ th{font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:upperca
     </div>
     <div class="list" id="fb-list"></div>
   </section>
-  <section id="t-veri" hidden><div class="list" id="veri-list"></div></section>
+  <section id="t-veri" hidden><div class="filters"><button class="btn" id="b-claude" type="button">📋 Claude için kopyala</button><span class="meta" style="align-self:center">Açık itirazları doğrulama için kopyalar. Doğru çıkanlara "✓ Doğru, ekle" de; düzeltme tüm telefonlara anında gider.</span></div><div class="list" id="veri-list"></div><h3 style="font-family:'Barlow Condensed',sans-serif;font-size:22px;margin:18px 0 8px">Uygulanan düzeltmeler</h3><div class="list" id="patch-list"></div></section>
   <section id="t-pl" hidden><div class="tw"><table><thead><tr><th>Oyuncu</th><th>Seviye</th><th>Maç</th><th>Doğru</th><th>Rekor</th><th>Durum</th></tr></thead><tbody id="pl-body"></tbody></table></div></section>
   <section id="t-rooms" hidden><div class="list" id="room-list"></div></section>
 </div>
@@ -112,7 +119,8 @@ function when(t){if(!t)return '';var d=new Date(t),m=Math.round((Date.now()-t)/6
 function lvl(x){var L=1;while(x>=50*L*(L+1))L++;return L;}
 var TYPES={hata:'🐞 Hata',oneri:'💡 Öneri',veri:'📚 Veritabanı',otomatik:'⚙️ Otomatik',diger:'💬 Diğer'};
 var ST={yeni:'Yeni',inceleniyor:'İnceleniyor',cozuldu:'Çözüldü'};
-var D={fb:{},profiles:{},rooms:{},tab:'fb'};
+var D={fb:{},profiles:{},rooms:{},patches:{},tab:'fb'};
+var CLUBID={"Galatasaray": "gs", "Fenerbahçe": "fb", "Beşiktaş": "bjk", "Trabzonspor": "ts", "Başakşehir": "ibfk", "Samsunspor": "sam", "Kasımpaşa": "kas", "Antalyaspor": "ant", "Konyaspor": "kon", "Sivasspor": "siv", "Kayserispor": "kay", "Alanyaspor": "ala", "Gaziantep FK": "gfk", "Çaykur Rizespor": "riz", "Eyüpspor": "eyu", "Bursaspor": "bur", "Ankaragücü": "ank", "Gençlerbirliği": "gen", "Kocaelispor": "koc", "Hatayspor": "hat", "Manchester United": "mu", "Manchester City": "mci", "Liverpool": "liv", "Chelsea": "che", "Arsenal": "ars", "Tottenham": "tot", "Newcastle United": "new", "Aston Villa": "avl", "Everton": "eve", "West Ham United": "whu", "Leicester City": "lei", "Real Madrid": "rma", "Barcelona": "bar", "Atlético Madrid": "atm", "Sevilla": "sev", "Valencia": "val", "Villarreal": "vil", "Real Betis": "bet", "Real Sociedad": "rso", "Athletic Bilbao": "ath", "Juventus": "juv", "Milan": "mil", "Inter": "int", "Roma": "rom", "Napoli": "nap", "Lazio": "laz", "Atalanta": "ata", "Fiorentina": "fio", "Bayern München": "bay", "Borussia Dortmund": "bvb", "Bayer Leverkusen": "lev", "Schalke 04": "s04", "Wolfsburg": "wob", "Stuttgart": "vfb", "Werder Bremen": "svw", "Eintracht Frankfurt": "sge", "RB Leipzig": "rbl", "Paris Saint-Germain": "psg", "Marseille": "om", "Lyon": "ol", "Monaco": "asm", "Lille": "losc", "Nice": "ogcn", "Benfica": "slb", "Porto": "fcp", "Sporting": "scp", "Ajax": "aja", "PSV": "psv", "Feyenoord": "fey"};
 firebase.initializeApp(CFG);
 var auth=firebase.auth(),db=firebase.database();
 function view(v){['v-login','v-noadmin','v-app'].forEach(function(id){$(id).hidden=id!==v;});}
@@ -135,6 +143,7 @@ function start(){
  db.ref('feedback').on('value',function(s){D.fb=s.val()||{};render();});
  db.ref('profiles').on('value',function(s){D.profiles=s.val()||{};render();});
  db.ref('rooms').on('value',function(s){D.rooms=s.val()||{};render();},function(){D.rooms={};});
+ db.ref('patches').on('value',function(s){D.patches=s.val()||{};render();},function(){D.patches={};});
 }
 function fbArr(){return Object.keys(D.fb).map(function(k){var r=D.fb[k]||{};r.id=k;r.st=r.st||'yeni';return r;}).sort(function(a,b){return (b.t||0)-(a.t||0);});}
 function tiles(){
@@ -157,9 +166,12 @@ function render(){
  if(document.activeElement&&document.activeElement.matches&&document.activeElement.matches('[data-note]'))return; /* don't redraw while typing a note */
  $('fb-list').innerHTML=list.length?list.map(fbCard).join(''):'<div class="empty">Bu filtrede bildirim yok.</div>';
  /* database disputes grouped */
- var g={};a.filter(function(r){return r.type==='veri';}).forEach(function(r){var key=(r.data&&r.data.oyuncu?r.data.oyuncu+' | '+r.data.k1+' – '+r.data.k2:r.text);(g[key]=g[key]||{key:key,n:0,last:0,open:0,ids:[]});g[key].n++;g[key].last=Math.max(g[key].last,r.t||0);if(r.st!=='cozuldu')g[key].open++;g[key].ids.push(r.id);});
+ var g={};a.filter(function(r){return r.type==='veri';}).forEach(function(r){var key=(r.data&&r.data.oyuncu?r.data.oyuncu+' | '+r.data.k1+' – '+r.data.k2:r.text);(g[key]=g[key]||{key:key,n:0,last:0,open:0,ids:[],o:r.data?r.data.oyuncu:'',c1:r.data?(r.data.c1||CLUBID[r.data.k1]):'',c2:r.data?(r.data.c2||CLUBID[r.data.k2]):''});g[key].n++;g[key].last=Math.max(g[key].last,r.t||0);if(r.st!=='cozuldu')g[key].open++;g[key].ids.push(r.id);});
  var ga=Object.keys(g).map(function(k){return g[k];}).sort(function(x,y){return y.open-x.open||y.n-x.n;});
- $('veri-list').innerHTML=ga.length?ga.map(function(x){return '<div class="fb '+(x.open?'st-yeni':'st-cozuldu')+'"><div class="top"><span class="tag veri">📚 '+x.n+' bildirim</span><span class="txt" style="font-size:15px">'+esc(x.key)+'</span><span class="sp"></span><span class="meta">'+when(x.last)+'</span></div><div class="acts">'+(x.open?'<button class="btn sm" data-solveall="'+esc(x.ids.join(','))+'" type="button">Hepsini çözüldü yap</button>':'<span class="meta">Çözüldü</span>')+'</div></div>';}).join(''):'<div class="empty">Henüz veritabanı itirazı yok.</div>';
+ $('veri-list').innerHTML=ga.length?ga.map(function(x){return '<div class="fb '+(x.open?'st-yeni':'st-cozuldu')+'"><div class="top"><span class="tag veri">📚 '+x.n+' bildirim</span><span class="txt" style="font-size:15px">'+esc(x.key)+'</span><span class="sp"></span><span class="meta">'+when(x.last)+'</span></div><div class="acts">'+(x.open?((x.o&&x.c1&&x.c2?'<button class="btn sm pri" data-approve="'+esc(x.ids.join(','))+'" data-o="'+esc(x.o)+'" data-c1="'+esc(x.c1)+'" data-c2="'+esc(x.c2)+'" type="button">✓ Doğru, ekle</button>':'')+'<button class="btn sm" data-solveall="'+esc(x.ids.join(','))+'" type="button">✗ Yanlış, kapat</button>'):'<span class="meta">Çözüldü</span>')+'</div></div>';}).join(''):'<div class="empty">Henüz veritabanı itirazı yok.</div>';
+ /* applied fixes */
+ var pk0=Object.keys(D.patches);
+ $('patch-list').innerHTML=pk0.length?pk0.map(function(k){var p=D.patches[k]||{};return '<div class="fb st-cozuldu" style="opacity:1"><div class="top"><span class="tag veri">➕ '+esc(p.name)+'</span><span class="meta">'+esc((p.add||[]).map(function(c){var n=Object.keys(CLUBID).filter(function(x){return CLUBID[x]===c;})[0];return n||c;}).join(' · '))+'</span><span class="sp"></span><span class="meta">'+when(p.t)+'</span><button class="btn sm" data-unpatch="'+esc(k)+'" type="button">Geri al</button></div></div>';}).join(''):'<div class="empty">Henüz düzeltme yok.</div>';
  /* players */
  var pk=Object.keys(D.profiles).map(function(k){var p=D.profiles[k]||{},c=p.card||{},o=p.on||{};return {n:c.n||'?',x:c.x||0,pl:c.pl||0,co:c.co||0,sb:c.sb||0,on:!!o.on,seen:o.seen||0};}).sort(function(a,b){return (b.on?1:0)-(a.on?1:0)||b.seen-a.seen;});
  $('pl-body').innerHTML=pk.map(function(p){return '<tr><td>'+esc(p.n)+'</td><td>'+lvl(p.x)+'</td><td>'+p.pl+'</td><td>'+p.co+'</td><td>'+(p.sb||'–')+'</td><td><span class="dot'+(p.on?' on':'')+'"></span>'+(p.on?'Çevrimiçi':when(p.seen))+'</td></tr>';}).join('')||'<tr><td colspan="6">Henüz profil yok.</td></tr>';
@@ -175,9 +187,17 @@ document.addEventListener('click',function(e){
  var c=e.target.closest('.fb[data-id]');
  var sb=e.target.closest('[data-st]');if(sb&&c){db.ref('feedback/'+c.dataset.id+'/st').set(sb.dataset.st);return;}
  if(e.target.closest('[data-del]')&&c){if(confirm('Bu bildirim silinsin mi?'))db.ref('feedback/'+c.dataset.id).remove();return;}
+ var ap=e.target.closest('[data-approve]');if(ap){db.ref('patches').push({name:ap.dataset.o,add:[ap.dataset.c1,ap.dataset.c2],t:firebase.database.ServerValue.TIMESTAMP,by:(auth.currentUser&&auth.currentUser.email)||''}).then(function(){var up={};ap.dataset.approve.split(',').forEach(function(id){up[id+'/st']='cozuldu';up[id+'/note']='Veritabanına eklendi';});return db.ref('feedback').update(up);});return;}
+ var un=e.target.closest('[data-unpatch]');if(un){if(confirm('Bu düzeltme geri alınsın mı? (Telefonlar bir sonraki açılışta eski haline döner)'))db.ref('patches/'+un.dataset.unpatch).remove();return;}
  var sa=e.target.closest('[data-solveall]');if(sa){var up={};sa.dataset.solveall.split(',').forEach(function(id){up[id+'/st']='cozuldu';});db.ref('feedback').update(up);}
 });
 document.addEventListener('change',function(e){if(e.target.matches('[data-note]')){var c=e.target.closest('.fb[data-id]');db.ref('feedback/'+c.dataset.id+'/note').set(e.target.value.slice(0,500));}});
+$('b-claude').onclick=function(){
+ var g={};fbArr().filter(function(r){return r.type==='veri'&&r.st!=='cozuldu'&&r.data;}).forEach(function(r){var k=r.data.oyuncu+' — '+r.data.k1+' & '+r.data.k2;g[k]=(g[k]||0)+1;});
+ var ks=Object.keys(g).sort(function(x,y){return g[y]-g[x];});
+ var t='Ortak Oyuncu veritabanı itirazları ('+ks.length+' adet). Bu futbolcular gerçekten iki kulüpte de resmi maça çıkmış mı, kontrol eder misin?\n'+ks.map(function(k,i){return (i+1)+'. '+k+' ('+g[k]+' bildirim)';}).join('\n');
+ try{navigator.clipboard.writeText(t).then(function(){$('b-claude').textContent='✓ Kopyalandı';setTimeout(function(){$('b-claude').textContent='📋 Claude için kopyala';},2000);},function(){prompt('Kopyala:',t);});}catch(e){prompt('Kopyala:',t);}
+};
 $('b-csv').onclick=function(){
  var rows=[['tarih','tur','durum','metin','oyuncu','surum','cihaz','ekran','mod','not']].concat(fbArr().map(function(r){return [r.t?new Date(r.t).toISOString():'',r.type,r.st,r.text,r.name,r.v,r.dev,r.sc,r.mode,r.note||''];}));
  var csv='\ufeff'+rows.map(function(r){return r.map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(',');}).join('\n');

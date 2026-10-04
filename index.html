@@ -1782,9 +1782,23 @@ $('fr-refresh').onclick=function(){frOpen(true);};
 /* keep the cloud copy of the profile fresh */
 (function(){var orig=saveProfile;saveProfile=function(){orig();profSyncSoon();};})();
 setTimeout(function(){if(PROF&&cloud())profSync();},2500);
+/* ---------- live database fixes: approved in the admin panel, applied on every phone ---------- */
+function applyPatches(list){
+ var changed=false;
+ (list||[]).forEach(function(pt){
+  if(!pt||!pt.name||!Array.isArray(pt.add))return;
+  var key=norm(pt.name),add=pt.add.filter(function(c){return CLUBS[c];});if(!add.length)return;
+  var pl=PLAYERS.filter(function(x){return x.key===key;})[0];
+  if(!pl){pl={name:String(pt.name).slice(0,60),clubs:[],fame:+pt.fame||5,key:key,aliases:[],akeys:[]};PLAYERS.push(pl);DUPN[key]=(DUPN[key]||0)+1;changed=true;}
+  add.forEach(function(c){if(pl.clubs.indexOf(c)<0){pl.clubs.push(c);changed=true;}});
+ });
+ if(changed){PAIRC=null;BIGC=null;}
+}
+try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e){}
+setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.9.1';
+var APP_VERSION='0.9.2';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -1814,7 +1828,7 @@ $('fb-send').onclick=function(){
 $('btn-fb').onclick=function(e){e.stopPropagation();fbOpen();};
 $('pf-fb').onclick=fbOpen;
 /* "Bence doğru" reports also go to the panel (database fixes) */
-(function(){var orig=logDispute;logDispute=function(name,accepted){orig(name,accepted);try{var a=CLUBS[G.picks[0]].n,b=CLUBS[G.picks[1]].n;cloudFeedback(Object.assign({type:'veri',text:name+' · '+a+' – '+b,data:{oyuncu:name,k1:a,k2:b,kabul:!!accepted}},fbContext())).catch(function(){});}catch(e){}};})();
+(function(){var orig=logDispute;logDispute=function(name,accepted){orig(name,accepted);try{var a=CLUBS[G.picks[0]].n,b=CLUBS[G.picks[1]].n;cloudFeedback(Object.assign({type:'veri',text:name+' · '+a+' – '+b,data:{oyuncu:name,k1:a,k2:b,c1:G.picks[0],c2:G.picks[1],kabul:!!accepted}},fbContext())).catch(function(){});}catch(e){}};})();
 /* unexpected errors are reported automatically (at most 3 per session, no duplicates) */
 window.addEventListener('error',function(e){var m=String(e.message||'hata').slice(0,200)+' @'+String(e.filename||'').split('/').pop()+':'+(e.lineno||0);FB.lastErr=m;if(FB.auto>=3||FB.seen[m])return;FB.seen[m]=1;FB.auto++;cloudFeedback(Object.assign({type:'otomatik',text:m},fbContext())).catch(function(){});});
 $('app-ver').textContent='v'+APP_VERSION;$('pf-ver').textContent='Sürüm '+APP_VERSION;
