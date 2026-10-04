@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Ortak Oyuncu · Yönetim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d16;--card:#141726;--card2:#1b1f33;--line:rgba(255,255,255,.12);--text:#EEF1F7;--muted:#9AA3B8;--acc:#F5D90A;--blue:#2F6BFF;--good:#3DDC97;--bad:#FF6B5E;--warn:#FFB020;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:'Barlow',system-ui,-apple-system,sans-serif;font-size:15px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h1{margin:0;font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-size:30px;line-height:1;letter-spacing:.02em}
+h1 small{display:block;font-family:'Barlow',sans-serif;font-size:12px;color:var(--muted);letter-spacing:.2em;font-weight:600}
+.sp{flex:1}
+.btn{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:600}
+.btn.pri{background:var(--acc);color:#1A1600;border-color:var(--acc)}
+.btn.sm{min-height:32px;padding:0 10px;font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.tile b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:32px;line-height:1}
+.tile span{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.tabs button{flex-shrink:0;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:transparent;font-weight:700}
+.tabs button[aria-selected="true"]{background:var(--text);color:var(--bg)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters select,.filters input{min-height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);padding:0 10px}
+.filters input{flex:1;min-width:180px}
+.list{display:flex;flex-direction:column;gap:10px}
+.fb{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.fb.st-yeni{border-left:4px solid var(--acc)}
+.fb.st-inceleniyor{border-left:4px solid var(--blue)}
+.fb.st-cozuldu{border-left:4px solid var(--good);opacity:.75}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--card2)}
+.tag.hata{background:rgba(255,107,94,.18);color:#FF9A90}
+.tag.oneri{background:rgba(245,217,10,.16);color:#F5D90A}
+.tag.veri{background:rgba(47,107,255,.2);color:#8FB0FF}
+.tag.otomatik{background:rgba(255,176,32,.18);color:#FFC766}
+.tag.diger{background:rgba(255,255,255,.1)}
+.txt{font-size:16px;line-height:1.45;white-space:pre-wrap;word-wrap:break-word}
+.meta{font-size:12px;color:var(--muted)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{min-height:32px;padding:0 10px;border:none;background:transparent;font-size:13px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.note{flex:1;min-width:160px;min-height:32px;border-radius:8px;border:1px solid var(--line);background:var(--card2);padding:4px 8px;font-size:13px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
+th{font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.tw{overflow-x:auto}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#555;margin-right:6px}
+.dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
+.center{max-width:460px;margin:12vh auto 0;text-align:center;display:flex;flex-direction:column;gap:14px;padding:0 20px}
+.uid{font-family:ui-monospace,monospace;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;word-break:break-all}
+.empty{color:var(--muted);padding:20px;text-align:center;background:var(--card);border-radius:14px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div id="v-login" class="center" hidden>
+  <h1 style="font-size:40px">ORTAK OYUNCU<small>YÖNETİM PANELİ</small></h1>
+  <p style="color:var(--muted);margin:0">Geri bildirimleri ve test sürecini buradan takip edebilirsin.</p>
+  <button class="btn pri" id="b-login" type="button" style="min-height:50px;font-size:17px">Google ile giriş yap</button>
+  <div id="login-msg" style="color:var(--bad);font-size:14px"></div>
+</div>
+<div id="v-noadmin" class="center" hidden>
+  <h1 style="font-size:34px">YETKİN YOK<small>BU HESAP HENÜZ YÖNETİCİ DEĞİL</small></h1>
+  <p style="color:var(--muted);margin:0">Firebase'de <b>Gerçek Zamanlı Veritabanı → Veri</b> sekmesinde <b>admins</b> altına bu kimliği <b>true</b> değeriyle ekle, sonra sayfayı yenile.</p>
+  <div class="uid" id="my-uid"></div>
+  <button class="btn" id="b-copyuid" type="button">Kimliği kopyala</button>
+  <button class="btn" id="b-logout2" type="button">Çıkış yap</button>
+</div>
+<div id="v-app" class="wrap" hidden>
+  <header><h1>ORTAK OYUNCU<small>YÖNETİM PANELİ</small></h1><div class="sp"></div><span class="meta" id="who"></span><button class="btn sm" id="b-csv" type="button">CSV indir</button><button class="btn sm" id="b-logout" type="button">Çıkış</button></header>
+  <div class="tiles" id="tiles"></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="fb" aria-selected="true">Geri bildirimler</button>
+    <button role="tab" data-tab="veri" aria-selected="false">Veritabanı itirazları</button>
+    <button role="tab" data-tab="pl" aria-selected="false">Oyuncular</button>
+    <button role="tab" data-tab="rooms" aria-selected="false">Canlı odalar</button>
+  </div>
+  <section id="t-fb">
+    <div class="filters">
+      <select id="f-type" aria-label="Tür"><option value="">Tüm türler</option><option value="hata">🐞 Hata</option><option value="oneri">💡 Öneri</option><option value="veri">📚 Veritabanı</option><option value="otomatik">⚙️ Otomatik hata</option><option value="diger">💬 Diğer</option></select>
+      <select id="f-st" aria-label="Durum"><option value="">Tüm durumlar</option><option value="yeni" selected>Yeni</option><option value="inceleniyor">İnceleniyor</option><option value="cozuldu">Çözüldü</option></select>
+      <select id="f-v" aria-label="Sürüm"><option value="">Tüm sürümler</option></select>
+      <input id="f-q" type="search" placeholder="Metin, oyuncu adı, cihaz ara…" aria-label="Ara">
+    </div>
+    <div class="list" id="fb-list"></div>
+  </section>
+  <section id="t-veri" hidden><div class="list" id="veri-list"></div></section>
+  <section id="t-pl" hidden><div class="tw"><table><thead><tr><th>Oyuncu</th><th>Seviye</th><th>Maç</th><th>Doğru</th><th>Rekor</th><th>Durum</th></tr></thead><tbody id="pl-body"></tbody></table></div></section>
+  <section id="t-rooms" hidden><div class="list" id="room-list"></div></section>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+(function(){
+var CFG={apiKey:"AIzaSyAh7S2Lgxj7P86ERHvgTuU1i_jII99l3FY",authDomain:"ortak-oyuncu-6dce7.firebaseapp.com",databaseURL:"https://ortak-oyuncu-6dce7-default-rtdb.europe-west1.firebasedatabase.app",projectId:"ortak-oyuncu-6dce7",storageBucket:"ortak-oyuncu-6dce7.firebasestorage.app",messagingSenderId:"604961502787",appId:"1:604961502787:web:81971ffa6c731322c806f6"};
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function when(t){if(!t)return '';var d=new Date(t),m=Math.round((Date.now()-t)/60000);if(m<1)return 'az önce';if(m<60)return m+' dk önce';if(m<1440)return Math.round(m/60)+' sa önce';return d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});}
+function lvl(x){var L=1;while(x>=50*L*(L+1))L++;return L;}
+var TYPES={hata:'🐞 Hata',oneri:'💡 Öneri',veri:'📚 Veritabanı',otomatik:'⚙️ Otomatik',diger:'💬 Diğer'};
+var ST={yeni:'Yeni',inceleniyor:'İnceleniyor',cozuldu:'Çözüldü'};
+var D={fb:{},profiles:{},rooms:{},tab:'fb'};
+firebase.initializeApp(CFG);
+var auth=firebase.auth(),db=firebase.database();
+function view(v){['v-login','v-noadmin','v-app'].forEach(function(id){$(id).hidden=id!==v;});}
+$('b-login').onclick=function(){
+ var pr=new firebase.auth.GoogleAuthProvider();$('login-msg').textContent='';
+ auth.signInWithPopup(pr).catch(function(e){if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'))auth.signInWithRedirect(pr);else $('login-msg').textContent='Giriş yapılamadı: '+(e&&e.code||e);});
+};
+$('b-logout').onclick=$('b-logout2').onclick=function(){auth.signOut();};
+$('b-copyuid').onclick=function(){try{navigator.clipboard.writeText($('my-uid').textContent);this.textContent='Kopyalandı';}catch(e){}};
+auth.onAuthStateChanged(function(u){
+ if(!u||u.isAnonymous){view('v-login');return;}
+ db.ref('admins/'+u.uid).once('value').then(function(s){
+  if(s.val()!==true){$('my-uid').textContent=u.uid;view('v-noadmin');return;}
+  $('who').textContent=u.email||u.displayName||'';view('v-app');start();
+ },function(){$('my-uid').textContent=u.uid;view('v-noadmin');});
+});
+var started=false;
+function start(){
+ if(started)return;started=true;
+ db.ref('feedback').on('value',function(s){D.fb=s.val()||{};render();});
+ db.ref('profiles').on('value',function(s){D.profiles=s.val()||{};render();});
+ db.ref('rooms').on('value',function(s){D.rooms=s.val()||{};render();},function(){D.rooms={};});
+}
+function fbArr(){return Object.keys(D.fb).map(function(k){var r=D.fb[k]||{};r.id=k;r.st=r.st||'yeni';return r;}).sort(function(a,b){return (b.t||0)-(a.t||0);});}
+function tiles(){
+ var a=fbArr(),pl=Object.keys(D.profiles),on=pl.filter(function(k){var o=D.profiles[k].on;return o&&o.on;}).length,rooms=Object.keys(D.rooms).length;
+ var cnt=function(f){return a.filter(f).length;};
+ var dayAgo=Date.now()-86400000;
+ $('tiles').innerHTML=[['Yeni bildirim',cnt(function(r){return r.st==='yeni';})],['İnceleniyor',cnt(function(r){return r.st==='inceleniyor';})],['Çözüldü',cnt(function(r){return r.st==='cozuldu';})],['Son 24 saat',cnt(function(r){return (r.t||0)>dayAgo;})],['Oyuncu',pl.length],['Şu an çevrimiçi',on],['Açık oda',rooms]].map(function(t){return '<div class="tile"><b>'+t[1]+'</b><span>'+t[0]+'</span></div>';}).join('');
+}
+function verOptions(a){var vs={};a.forEach(function(r){if(r.v)vs[r.v]=1;});var sel=$('f-v'),cur=sel.value;sel.innerHTML='<option value="">Tüm sürümler</option>'+Object.keys(vs).sort().reverse().map(function(v){return '<option value="'+esc(v)+'">'+esc(v)+'</option>';}).join('');sel.value=cur;}
+function fbCard(r){
+ return '<div class="fb st-'+r.st+'" data-id="'+r.id+'"><div class="top"><span class="tag '+esc(r.type)+'">'+(TYPES[r.type]||esc(r.type))+'</span><span class="meta">'+esc(r.name||'isimsiz')+' · v'+esc(r.v||'?')+' · '+esc(r.dev||'')+' · ekran: '+esc(r.sc||'')+(r.mode?' · mod: '+esc(r.mode):'')+'</span><span class="sp"></span><span class="meta">'+when(r.t)+'</span></div>'+
+  '<div class="txt">'+esc(r.text)+'</div>'+(r.err&&r.type!=='otomatik'?'<div class="meta">Son hata: '+esc(r.err)+'</div>':'')+
+  '<div class="acts"><span class="seg">'+Object.keys(ST).map(function(k){return '<button type="button" data-st="'+k+'" aria-pressed="'+(r.st===k)+'">'+ST[k]+'</button>';}).join('')+'</span><input class="note" data-note placeholder="Not ekle (sadece sen görürsün)" value="'+esc(r.note||'')+'"><button class="btn sm" data-del type="button">Sil</button></div></div>';
+}
+function render(){
+ if(!started)return;tiles();
+ var a=fbArr();verOptions(a);
+ var ft=$('f-type').value,fs=$('f-st').value,fv=$('f-v').value,q=$('f-q').value.trim().toLocaleLowerCase('tr-TR');
+ var list=a.filter(function(r){if(ft&&r.type!==ft)return false;if(fs&&r.st!==fs)return false;if(fv&&r.v!==fv)return false;if(q&&(String(r.text)+' '+(r.name||'')+' '+(r.dev||'')).toLocaleLowerCase('tr-TR').indexOf(q)<0)return false;return true;});
+ if(document.activeElement&&document.activeElement.matches&&document.activeElement.matches('[data-note]'))return; /* don't redraw while typing a note */
+ $('fb-list').innerHTML=list.length?list.map(fbCard).join(''):'<div class="empty">Bu filtrede bildirim yok.</div>';
+ /* database disputes grouped */
+ var g={};a.filter(function(r){return r.type==='veri';}).forEach(function(r){var key=(r.data&&r.data.oyuncu?r.data.oyuncu+' | '+r.data.k1+' – '+r.data.k2:r.text);(g[key]=g[key]||{key:key,n:0,last:0,open:0,ids:[]});g[key].n++;g[key].last=Math.max(g[key].last,r.t||0);if(r.st!=='cozuldu')g[key].open++;g[key].ids.push(r.id);});
+ var ga=Object.keys(g).map(function(k){return g[k];}).sort(function(x,y){return y.open-x.open||y.n-x.n;});
+ $('veri-list').innerHTML=ga.length?ga.map(function(x){return '<div class="fb '+(x.open?'st-yeni':'st-cozuldu')+'"><div class="top"><span class="tag veri">📚 '+x.n+' bildirim</span><span class="txt" style="font-size:15px">'+esc(x.key)+'</span><span class="sp"></span><span class="meta">'+when(x.last)+'</span></div><div class="acts">'+(x.open?'<button class="btn sm" data-solveall="'+esc(x.ids.join(','))+'" type="button">Hepsini çözüldü yap</button>':'<span class="meta">Çözüldü</span>')+'</div></div>';}).join(''):'<div class="empty">Henüz veritabanı itirazı yok.</div>';
+ /* players */
+ var pk=Object.keys(D.profiles).map(function(k){var p=D.profiles[k]||{},c=p.card||{},o=p.on||{};return {n:c.n||'?',x:c.x||0,pl:c.pl||0,co:c.co||0,sb:c.sb||0,on:!!o.on,seen:o.seen||0};}).sort(function(a,b){return (b.on?1:0)-(a.on?1:0)||b.seen-a.seen;});
+ $('pl-body').innerHTML=pk.map(function(p){return '<tr><td>'+esc(p.n)+'</td><td>'+lvl(p.x)+'</td><td>'+p.pl+'</td><td>'+p.co+'</td><td>'+(p.sb||'–')+'</td><td><span class="dot'+(p.on?' on':'')+'"></span>'+(p.on?'Çevrimiçi':when(p.seen))+'</td></tr>';}).join('')||'<tr><td colspan="6">Henüz profil yok.</td></tr>';
+ /* rooms */
+ var rk=Object.keys(D.rooms);
+ $('room-list').innerHTML=rk.length?rk.map(function(code){var peers=(D.rooms[code]||{}).peers||{},names=Object.keys(peers).map(function(id){var p=(peers[id]||{}).p||{};try{return JSON.parse(p.name||'""')||'?';}catch(e){return '?';}});
+  return '<div class="fb"><div class="top"><span class="tag">'+(code.indexOf('op-')===0?'🎉 Çok oyunculu':'⚔️ 1v1')+'</span><b>'+esc(code.replace(/^o[op]-/,'').toUpperCase())+'</b><span class="meta">'+names.length+' kişi: '+esc(names.join(', '))+'</span></div></div>';}).join(''):'<div class="empty">Şu an açık oda yok.</div>';
+}
+['f-type','f-st','f-v'].forEach(function(id){$(id).addEventListener('change',render);});
+$('f-q').addEventListener('input',render);
+document.querySelector('.tabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;D.tab=b.dataset.tab;document.querySelectorAll('.tabs button').forEach(function(x){x.setAttribute('aria-selected',x===b);});['fb','veri','pl','rooms'].forEach(function(t){$('t-'+t).hidden=t!==D.tab;});});
+document.addEventListener('click',function(e){
+ var c=e.target.closest('.fb[data-id]');
+ var sb=e.target.closest('[data-st]');if(sb&&c){db.ref('feedback/'+c.dataset.id+'/st').set(sb.dataset.st);return;}
+ if(e.target.closest('[data-del]')&&c){if(confirm('Bu bildirim silinsin mi?'))db.ref('feedback/'+c.dataset.id).remove();return;}
+ var sa=e.target.closest('[data-solveall]');if(sa){var up={};sa.dataset.solveall.split(',').forEach(function(id){up[id+'/st']='cozuldu';});db.ref('feedback').update(up);}
+});
+document.addEventListener('change',function(e){if(e.target.matches('[data-note]')){var c=e.target.closest('.fb[data-id]');db.ref('feedback/'+c.dataset.id+'/note').set(e.target.value.slice(0,500));}});
+$('b-csv').onclick=function(){
+ var rows=[['tarih','tur','durum','metin','oyuncu','surum','cihaz','ekran','mod','not']].concat(fbArr().map(function(r){return [r.t?new Date(r.t).toISOString():'',r.type,r.st,r.text,r.name,r.v,r.dev,r.sc,r.mode,r.note||''];}));
+ var csv='\ufeff'+rows.map(function(r){return r.map(function(x){return '"'+String(x==null?'':x).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+ var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='ortak-oyuncu-geri-bildirim.csv';document.body.appendChild(a);a.click();a.remove();
+};
+})();
+</script>
+</body>
+</html>

@@ -250,6 +250,7 @@ select{width:100%;height:50px;border-radius:12px;border:1px solid var(--line);ba
 .sitem .eq{border:2px solid var(--line);background:var(--surface)}
 .sitem .eq.on{border-color:var(--accent-line);background:var(--surface2)}
 .pchip{display:flex;align-items:center;gap:10px;align-self:flex-start;min-height:48px;padding:4px 14px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.mx-fb{position:absolute;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));left:12px;width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;padding:0}
 .mx-prof{position:absolute;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:12px;width:52px;height:52px;border-radius:50%;border:none;background:none;padding:0}
 .mx-prof .pp-plus{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.35);color:#fff}
 #gtoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:#0E1A14;color:#fff;padding:10px 16px;border-radius:14px;font-weight:600;font-size:15px;max-width:90%;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
@@ -474,6 +475,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div class="mx-bg" aria-hidden="true"></div>
   <div class="mx-grain" aria-hidden="true"></div>
   <button class="mx-prof" id="btn-prof" type="button" aria-label="Profilim"></button>
+  <button class="mx-fb" id="btn-fb" type="button" aria-label="Geri bildirim gönder"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z"/><path d="M12 8v4"/><circle cx="12" cy="15.5" r=".6" fill="currentColor"/></svg></button>
   <div class="mx-titlewrap"><h1 class="mx-title" aria-label="Ortak Oyuncu"><span class="w w1" aria-hidden="true"></span><span class="w w2" aria-hidden="true"></span></h1></div>
   <div class="mx-stage">
     <div class="reel l"><div class="win" id="win-l"><div class="strip" id="strip-l"></div></div><div class="rnm" id="rnm-l"></div></div>
@@ -490,7 +492,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
     <button class="cta" id="btn-play">TEK KİŞİLİK OYNA</button>
     <button class="cta" id="btn-play2">1V1 DÜELLO</button>
     <button class="cta" id="btn-party">ÇOK OYUNCULU</button>
-    <div class="mx-hint">Ortadaki karta dokun, yeni eşleşme çevrilsin</div>
+    <div class="mx-hint">Ortadaki karta dokun, yeni eşleşme çevrilsin · <span id="app-ver"></span></div>
   </div>
 </section>
 
@@ -531,6 +533,8 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <h3 class="sec">İSTATİSTİKLER</h3><div class="stat-grid" id="pf-stats"></div>
   <h3 class="sec">ROZETLER</h3><div class="badges" id="pf-badges"></div>
   <h3 class="sec">SON MAÇLAR</h3><div class="hist" id="pf-hist"></div>
+  <button class="ghost" id="pf-fb" type="button">💬 Geri bildirim gönder</button>
+  <p class="small muted" id="pf-ver" style="margin:0;text-align:center"></p>
   <p class="small muted" style="margin:4px 0 0">Profilin bu telefonda saklanır. Aynı telefonda oynarken istatistikler 1. oyuncuya (sarı) yazılır.</p>
 </section>
 
@@ -558,6 +562,16 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
     <div class="hist" id="fr-list"></div>
   </div>
 </section>
+<div id="fbm" class="fv" role="dialog" aria-modal="true" aria-labelledby="fb-h" hidden><div class="fv-box" style="display:flex;flex-direction:column;gap:12px">
+  <button id="fb-x" type="button" aria-label="Kapat" style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:18px">✕</button>
+  <b class="cond" id="fb-h" style="font-size:30px;line-height:1">GERİ BİLDİRİM</b>
+  <div class="chips" id="fb-type"><button type="button" class="chipbtn" data-t="hata">🐞 Hata</button><button type="button" class="chipbtn" data-t="oneri">💡 Öneri</button><button type="button" class="chipbtn" data-t="veri">📚 Veritabanı</button><button type="button" class="chipbtn" data-t="diger">💬 Diğer</button></div>
+  <label for="fb-text" class="small" style="color:rgba(244,246,250,.7)">Ne oldu, ne öneriyorsun?</label>
+  <textarea id="fb-text" rows="5" maxlength="1500" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:#F4F6FA;padding:12px;font:inherit;font-size:16px;resize:vertical"></textarea>
+  <span class="small" id="fb-ver" style="color:rgba(244,246,250,.55)"></span>
+  <div id="fb-msg" class="small" style="min-height:18px"></div>
+  <button class="cta" id="fb-send" type="button">Gönder</button>
+</div></div>
 <div id="fv" class="fv" role="dialog" aria-modal="true" aria-label="Arkadaş profili" hidden><div class="fv-box"><button id="fv-x" type="button" aria-label="Kapat" style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:18px">✕</button><div id="fv-body"></div></div></div>
 
 <section id="s-store" class="screen scrolly">
@@ -1774,6 +1788,42 @@ $('fr-refresh').onclick=function(){frOpen(true);};
 (function(){var orig=saveProfile;saveProfile=function(){orig();profSyncSoon();};})();
 setTimeout(function(){if(PROF&&cloud())profSync();},2500);
 
+/* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
+var APP_VERSION='0.9.0';
+var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
+function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
+function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
+function fbContext(){return {v:APP_VERSION,dev:devShort(),ua:String(navigator.userAgent||'').slice(0,200),scr:window.innerWidth+'x'+window.innerHeight,sc:FB.from||curScreen(),mode:document.body.getAttribute('data-mode')||'',name:PROF?PROF.name:'',pid:PROF?PROF.id:'',err:FB.lastErr||''};}
+function cloudFeedback(rec){
+ var C=cloud();if(!C)return Promise.reject(new Error('nocloud'));
+ return C.ready().then(function(c){rec.uid=c.uid;rec.t=c.TS;rec.st='yeni';return c.db.ref('feedback').push(rec);});
+}
+function fbOpen(){
+ FB.from=curScreen();FB.type='hata';
+ document.querySelectorAll('#fb-type .chipbtn').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.t===FB.type);});
+ $('fb-text').value='';$('fb-msg').textContent='';$('fb-send').disabled=false;
+ $('fb-ver').textContent='Sürüm '+APP_VERSION+' · '+devShort()+' · bulunduğun ekran otomatik eklenir';
+ $('fbm').hidden=false;focusIn('fb-text');
+}
+$('fb-type').addEventListener('click',function(e){var b=e.target.closest('.chipbtn');if(!b)return;FB.type=b.dataset.t;document.querySelectorAll('#fb-type .chipbtn').forEach(function(x){x.setAttribute('aria-pressed',x===b);});});
+$('fbm').addEventListener('click',function(e){if(e.target===this||e.target.closest('#fb-x'))this.hidden=true;});
+$('fb-send').onclick=function(){
+ var t=$('fb-text').value.trim();if(t.length<3){$('fb-msg').innerHTML='<span class="bad">Birkaç kelimeyle anlatır mısın?</span>';focusIn('fb-text');return;}
+ var btn=this;btn.disabled=true;$('fb-msg').textContent='Gönderiliyor…';
+ var rec=Object.assign({type:FB.type,text:t.slice(0,1500)},fbContext());
+ cloudFeedback(rec).then(function(){$('fbm').hidden=true;gtoast('Teşekkürler! Geri bildirimin ulaştı 🙌');},function(e){
+  btn.disabled=false;
+  if(e&&e.message==='nocloud'){try{navigator.clipboard.writeText('['+rec.type+'] '+t+' ('+rec.v+', '+rec.dev+', '+rec.sc+')');}catch(x){}$('fb-msg').innerHTML='<span class="muted">Bu sürüm sunucuya bağlı değil; mesajın kopyalandı, bize WhatsApp\'tan iletebilirsin.</span>';}
+  else $('fb-msg').innerHTML='<span class="bad">Gönderilemedi. İnternetini kontrol edip tekrar dene.</span>';});
+};
+$('btn-fb').onclick=function(e){e.stopPropagation();fbOpen();};
+$('pf-fb').onclick=fbOpen;
+/* "Bence doğru" reports also go to the panel (database fixes) */
+(function(){var orig=logDispute;logDispute=function(name,accepted){orig(name,accepted);try{var a=CLUBS[G.picks[0]].n,b=CLUBS[G.picks[1]].n;cloudFeedback(Object.assign({type:'veri',text:name+' · '+a+' – '+b,data:{oyuncu:name,k1:a,k2:b,kabul:!!accepted}},fbContext())).catch(function(){});}catch(e){}};})();
+/* unexpected errors are reported automatically (at most 3 per session, no duplicates) */
+window.addEventListener('error',function(e){var m=String(e.message||'hata').slice(0,200)+' @'+String(e.filename||'').split('/').pop()+':'+(e.lineno||0);FB.lastErr=m;if(FB.auto>=3||FB.seen[m])return;FB.seen[m]=1;FB.auto++;cloudFeedback(Object.assign({type:'otomatik',text:m},fbContext())).catch(function(){});});
+$('app-ver').textContent='v'+APP_VERSION;$('pf-ver').textContent='Sürüm '+APP_VERSION;
+
 loadProfile();renderProfBtn();
 if(PROF){$('n1').value=PROF.name;$('on-name').value=PROF.name;}
 
@@ -2545,7 +2595,7 @@ $('se-menu').onclick=function(){if(END.menu)END.menu();else show('s-modes');};
   later(3500,function(){intro.classList.add('t5');});
  };
  intro.addEventListener('click',function(e){
-  if(e.target.closest('#btn-play')||e.target.closest('#btn-play2')||e.target.closest('#mx-card')||e.target.closest('#btn-prof')||e.target.closest('#btn-party'))return;
+  if(e.target.closest('#btn-play')||e.target.closest('#btn-play2')||e.target.closest('#mx-card')||e.target.closest('#btn-prof')||e.target.closest('#btn-fb')||e.target.closest('#btn-party'))return;
   if(!intro.classList.contains('t5'))finalState();
  });
  $('mx-card').addEventListener('click',function(){
