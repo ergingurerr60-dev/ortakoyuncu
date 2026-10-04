@@ -1468,13 +1468,8 @@ function oSubmit(name){
  var shown=c[0]?c[0].name:String(name||'').trim();if(!shown)return;
  OR.lockUntil=performance.now()+3000;OR.lastWrong={name:shown,ms:ms};
  $('or-input').value='';$('or-sugg').innerHTML='';
- var canD=!st.disputed[ON.seat];
- $('or-msg').innerHTML='<span class="bad">Yanlış: '+esc(shown)+'</span>'+(canD?'<br><button class="ghost" id="or-disp" style="min-height:40px;margin-top:6px">Eminim, itiraz et ('+fmtMs(ms)+')</button>':'');
- if(canD)$('or-disp').onclick=function(){
-  if(OR.done)return;var w=OR.lastWrong;OR.done=true;OR.doneMs=w.ms;$('or-input').disabled=true;$('or-sugg').innerHTML='';
-  $('or-msg').innerHTML='İtiraz ettin: <b>'+esc(w.name)+'</b> · '+fmtMs(w.ms)+'<br><span class="small muted">Rakibinden hızlıysan, kararı o verecek.</span>';
-  act('sub',{name:w.name,ms:w.ms,disp:true});
- };
+ $('or-msg').innerHTML='<span class="bad">Yanlış: '+esc(shown)+'</span>'+reportBtn();
+ bindReport(shown,st.pk[0],st.pk[1]);
  if(navigator.vibrate){try{navigator.vibrate(120);}catch(e){}}
 }
 $('or-input').addEventListener('input',function(e){
@@ -1789,7 +1784,7 @@ $('fr-refresh').onclick=function(){frOpen(true);};
 setTimeout(function(){if(PROF&&cloud())profSync();},2500);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.9.0';
+var APP_VERSION='0.9.1';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2076,7 +2071,7 @@ bindAnswer('pp-in','pp-sugg',function(name){
  var st=PT.st;if(!st||st.ph!=='pp'||PT.ppWait)return;
  if(st.pp.turn!==PT.pid){$('pp-msg').innerHTML='<span class="muted">Sıra rakibinde, biraz bekle</span>';return;}
  var valid=common(st.pk[0],st.pk[1]),c=resolve(name),pl=c.filter(function(x){return valid.indexOf(x)>-1;})[0];
- if(!pl){if(c.length||String(name).trim()){$('pp-msg').innerHTML='<span class="bad">Yanlış: '+esc(c[0]?c[0].name:name)+'</span>';shake($('pp-in'));clearAns('pp-in','pp-sugg');}return;}
+ if(!pl){if(c.length||String(name).trim()){var wn=c[0]?c[0].name:String(name).trim();$('pp-msg').innerHTML='<span class="bad">Yanlış: '+esc(wn)+'</span>'+reportBtn();bindReport(wn,st.pk[0],st.pk[1],$('pp-msg'));shake($('pp-in'));clearAns('pp-in','pp-sugg');}return;}
  if(st.pp.used.some(function(u){return u.n===pl.name;})){$('pp-msg').innerHTML='<span class="bad">'+esc(pl.name)+' zaten söylendi</span>';shake($('pp-in'));clearAns('pp-in','pp-sugg');return;}
  PT.ppWait=true;$('pp-msg').innerHTML='<span class="good">✓ '+esc(pl.name)+'</span>';clearAns('pp-in','pp-sugg');pSend({k:st.pp.k,name:pl.name});
 });
@@ -2115,7 +2110,8 @@ function xoRender(st,enter){
    h+='<button type="button" class="gc'+(v?(sym==='X'?' x':' o'):'')+(PT.xoSel===i?' sel':'')+'" data-i="'+i+'"'+(v||!mine?' disabled':'')+'>'+(v?'<span><span class="mk">'+sym+'</span>'+esc(v.n)+'</span>':'')+'</button>';}}
  $('xo-grid').innerHTML=h;
  if(xo.last&&PT.xoLastK!==xo.k){PT.xoLastK=xo.k;var who=xo.last.p===me?'Sen':pName(st,xo.last.p);
-  $('xo-msg').innerHTML=xo.last.timeout?'<span class="muted">'+esc(who)+': süre doldu, sıra geçti</span>':xo.last.ok?'<span class="good">'+esc(who)+': ✓ '+esc(xo.last.n)+'</span>':'<span class="bad">'+esc(who)+': ✗ '+esc(xo.last.n)+' — sıra geçti</span>';}
+  $('xo-msg').innerHTML=xo.last.timeout?'<span class="muted">'+esc(who)+': süre doldu, sıra geçti</span>':xo.last.ok?'<span class="good">'+esc(who)+': ✓ '+esc(xo.last.n)+'</span>':'<span class="bad">'+esc(who)+': ✗ '+esc(xo.last.n)+' — sıra geçti</span>'+(xo.last.p===me&&xo.last.n?reportBtn():'');
+  if(!xo.last.ok&&!xo.last.timeout&&xo.last.p===me&&xo.last.n)bindReport(xo.last.n,xo.R[Math.floor(xo.last.cell/3)],xo.C[xo.last.cell%3],$('xo-msg'));}
  if(!mine){$('xo-panel').hidden=true;PT.xoSel=-1;}
 }
 $('xo-grid').addEventListener('click',function(e){var b=e.target.closest('.gc');if(!b||b.disabled)return;var st=PT.st;if(!st||st.ph!=='xo'||st.xo.turn!==PT.pid)return;
@@ -2150,6 +2146,10 @@ function bindStepper(id,min,max,set){
  inp.addEventListener('blur',function(){if(!inp.readOnly)apply(inp.value);});
 }
 
+/* ---------- "Bence doğru, bildir": a wrong-looking answer is sent to the admin panel, nobody else is asked ---------- */
+function reportBtn(){return '<br><button class="ghost rep-btn" type="button" style="min-height:40px;margin-top:6px">Bence doğru, bildir</button>';}
+function bindReport(name,a,b,scope){var btn=(scope||document).querySelector('.rep-btn:not([data-bound])');if(!btn)return;btn.setAttribute('data-bound','1');
+ btn.onclick=function(){var keep=G.picks;G.picks=[a,b];try{logDispute(name,false);}catch(e){}G.picks=keep;this.disabled=true;this.textContent='Bildirildi, inceleyeceğiz 👍';};}
 /* ---------- in-game exit (top-left on every game screen) ---------- */
 function gameLive(){return SOLO.active||(ON.active&&ON.st&&ON.st.ph!=='final'&&ON.st.ph!=='lobby')||(PT.active&&PT.st&&PT.st.ph!=='lobby'&&PT.st.ph!=='final');}
 function gameExitNow(){
