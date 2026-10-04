@@ -40,6 +40,17 @@ body{height:100%;margin:0;background:var(--grass1);color:var(--text);font-family
 #pitch svg .ln{fill:none;stroke:var(--lines);stroke-width:.4}
 #pitch svg .sp{fill:var(--lines)}
 #app{z-index:1}
+/* ---------- friends ---------- */
+.frow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;color:var(--text);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.frow .nm{flex:1;min-width:0}
+.frow .nm b{display:block;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow .sub{font-size:12px;color:var(--muted)}
+.frow .st{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.frow .st.on{color:#3DDC97}
+.frow .st.on::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:#3DDC97;margin-right:5px;box-shadow:0 0 8px #3DDC97}
+.fv{position:fixed;inset:0;z-index:55;background:rgba(5,6,12,.62);display:flex;align-items:center;justify-content:center;padding:20px}
+.fv-box{position:relative;background:#141626;border:1px solid rgba(255,255,255,.16);border-radius:22px;padding:20px;max-width:380px;width:100%;color:#F4F6FA;animation:rise .25s both}
+
 /* ---------- number steppers (rounds / seconds) ---------- */
 .stepper{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .stepper>button{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:26px;font-weight:700;line-height:1;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -516,6 +527,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div class="pf-top"><button class="back" id="pf-back">‹ Geri</button><div class="coinpill"><svg class="coin-ic" viewBox="0 0 20 20" aria-hidden="true"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#D9A400"/></linearGradient></defs><circle cx="10" cy="10" r="9" fill="url(#cg)" stroke="#9A7300" stroke-width="1"/><circle cx="10" cy="10" r="6" fill="none" stroke="#9A7300" stroke-width="1" opacity=".6"/><path d="M8 6.5h4M10 6.5v6.2c0 1-0.8 1.6-1.8 1.4" stroke="#7A5A00" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span id="pf-coins">0</span></div></div>
   <div class="pf-card"><div id="pf-avatar"></div><div class="pf-id"><h2 class="cond" id="pf-name"></h2><div class="pf-club" id="pf-club"></div><div class="pf-title" id="pf-title"></div><div class="lvl"><i id="pf-xpbar"></i></div><div class="small muted" id="pf-xptext"></div></div></div>
   <div class="row"><button class="ghost" id="pf-edit">Profili düzenle</button><button class="cta" id="pf-store">Mağaza</button></div>
+  <button class="cta" id="pf-friends" type="button" style="background:linear-gradient(90deg,#22C55E,#0EA5E9);color:#fff">👥 Arkadaşlar</button>
   <h3 class="sec">İSTATİSTİKLER</h3><div class="stat-grid" id="pf-stats"></div>
   <h3 class="sec">ROZETLER</h3><div class="badges" id="pf-badges"></div>
   <h3 class="sec">SON MAÇLAR</h3><div class="hist" id="pf-hist"></div>
@@ -534,6 +546,19 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <button class="cta" id="pe-save">Kaydet</button>
   <button class="ghost" id="pe-reset" hidden>Profili sıfırla</button>
 </section>
+
+<section id="s-friends" class="screen scrolly">
+  <div class="pf-top"><button class="back" id="fr-back" type="button">‹ Profil</button><button class="ghost" id="fr-refresh" type="button" style="min-height:40px">Yenile</button></div>
+  <h2 class="cond" style="margin:0;font-size:40px;line-height:1">ARKADAŞLAR</h2>
+  <div id="fr-off" class="rules" hidden>Arkadaşlar özelliği, telefona kurduğun uygulama sürümünde çalışır (oyun sunucusuna orada bağlanıyor).</div>
+  <div id="fr-on" style="display:flex;flex-direction:column;gap:12px">
+    <div class="rules" style="display:flex;align-items:center;gap:12px"><div style="flex:1"><span class="small muted">Arkadaş kodun</span><b class="cond" id="fr-mycode" style="display:block;font-size:34px;letter-spacing:.12em;line-height:1.1">…</b></div><button class="cta" id="fr-copy" type="button" style="min-height:46px;font-size:18px">Paylaş</button></div>
+    <div class="field"><label for="fr-code" class="small muted">Arkadaşının kodunu ekle</label><div style="display:flex;gap:8px"><input id="fr-code" type="text" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="ÖRN. K7PX9Q" style="flex:1;min-width:0;text-transform:uppercase;letter-spacing:.2em;font-weight:700"><button class="cta" id="fr-add" type="button" style="min-height:50px;font-size:18px">Ekle</button></div></div>
+    <p class="small muted" id="fr-demo" style="margin:0">🧪 Demo süresince oyunda profili olan herkes otomatik olarak arkadaş listende görünüyor.</p>
+    <div class="hist" id="fr-list"></div>
+  </div>
+</section>
+<div id="fv" class="fv" role="dialog" aria-modal="true" aria-label="Arkadaş profili" hidden><div class="fv-box"><button id="fv-x" type="button" aria-label="Kapat" style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:18px">✕</button><div id="fv-body"></div></div></div>
 
 <section id="s-store" class="screen scrolly">
   <div class="pf-top"><button class="back" id="st-back">‹ Profil</button><div class="coinpill"><svg class="coin-ic" viewBox="0 0 20 20" aria-hidden="true"><defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE98A"/><stop offset="1" stop-color="#D9A400"/></linearGradient></defs><circle cx="10" cy="10" r="9" fill="url(#cg)" stroke="#9A7300" stroke-width="1"/><circle cx="10" cy="10" r="6" fill="none" stroke="#9A7300" stroke-width="1" opacity=".6"/><path d="M8 6.5h4M10 6.5v6.2c0 1-0.8 1.6-1.8 1.4" stroke="#7A5A00" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span id="st-coins">0</span></div></div>
@@ -1660,6 +1685,95 @@ $('st-grid').addEventListener('click',function(e){
   else if(it2.cat==='pat')PROF.kit.pattern=PROF.kit.pattern===it2.pat?'stripes':it2.pat;
   saveProfile();renderStore();}
 });
+/* ---------- friends (needs the cloud: works in the installed app build, which talks to Firebase) ---------- */
+var DEMO_ALL_FRIENDS=true; /* demo period: everyone who has a profile is automatically everyone's friend */
+var FR={list:[],loaded:false,busy:false,syncT:null};
+function cloud(){return window.OO_CLOUD||null;}
+function frCode(){var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<6;i++)s+=a[rnd(a.length)];return s;}
+function cardOf(p){var s=p.st||{},so=s.solo||{best:{}};return {n:p.name,c:p.club,k:p.kit,eq:p.eq,x:p.xp,pl:s.played||0,w:s.won||0,co:s.correct||0,fm:s.fastMs||0,fn:s.fastName||'',b:(p.badges||[]).length,sb:Math.max(so.best.kolay||0,so.best.orta||0,so.best.zor||0),pg:(s.party||{}).games||0,code:p.code||''};}
+function profSync(){
+ var C=cloud();if(!C||!PROF)return;
+ C.ready().then(function(c){
+  var db=c.db,uid=c.uid;PROF.uid=uid;
+  var claim=function(tries){
+   if(!PROF.code)PROF.code=frCode();
+   return db.ref('codes/'+PROF.code).once('value').then(function(s){var v=s.val();if(v&&v!==uid){if(tries>4)throw new Error('code');PROF.code=null;return claim(tries+1);}return db.ref('codes/'+PROF.code).set(uid);});
+  };
+  return claim(0).then(function(){
+   try{localStorage.setItem(PKEY,JSON.stringify(PROF));}catch(e){}
+   var me=db.ref('profiles/'+uid);
+   me.child('card').set(Object.assign(cardOf(PROF),{u:c.TS}));
+   me.child('on').onDisconnect().set({on:false,seen:c.TS});
+   me.child('on').set({on:true,seen:c.TS});
+  });
+ }).catch(function(){});
+}
+function profSyncSoon(){clearTimeout(FR.syncT);FR.syncT=setTimeout(profSync,1500);}
+function agoText(t){if(!t)return '';var m=Math.round((Date.now()-t)/60000);if(m<1)return 'az önce';if(m<60)return m+' dk önce';var h=Math.round(m/60);if(h<24)return h+' sa önce';return Math.round(h/24)+' gün önce';}
+function frLoad(){
+ var C=cloud();if(!C)return Promise.resolve([]);
+ return C.ready().then(function(c){
+  var db=c.db,uid=c.uid;
+  var mine=db.ref('friends/'+uid).once('value').then(function(s){return Object.keys(s.val()||{});});
+  var all=DEMO_ALL_FRIENDS?db.ref('profiles').once('value').then(function(s){return s.val()||{};}):Promise.resolve(null);
+  return Promise.all([mine,all]).then(function(r){
+   var ids=r[0],map=r[1]||{},need=ids.filter(function(id){return !map[id];});
+   return Promise.all(need.map(function(id){return db.ref('profiles/'+id).once('value').then(function(s){map[id]=s.val();});})).then(function(){
+    var out=[],seen={};
+    Object.keys(map).forEach(function(id){if(id===uid||!map[id]||!map[id].card)return;if(!DEMO_ALL_FRIENDS&&ids.indexOf(id)<0)return;seen[id]=1;out.push({id:id,card:map[id].card,on:map[id].on||{},added:ids.indexOf(id)>-1});});
+    out.sort(function(a,b){return (b.on.on?1:0)-(a.on.on?1:0)||(b.on.seen||0)-(a.on.seen||0);});
+    return out;
+   });
+  });
+ });
+}
+function frAdd(code){
+ var C=cloud();code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ if(code.length!==6){gtoast('Arkadaş kodu 6 karakterli olmalı');return;}
+ if(PROF&&PROF.code===code){gtoast('Bu senin kendi kodun 🙂');return;}
+ C.ready().then(function(c){return c.db.ref('codes/'+code).once('value').then(function(s){var fid=s.val();
+  if(!fid){gtoast('Bu kodla bir oyuncu bulunamadı');return;}
+  return Promise.all([c.db.ref('friends/'+c.uid+'/'+fid).set(c.TS),c.db.ref('friends/'+fid+'/'+c.uid).set(c.TS)]).then(function(){gtoast('Arkadaş eklendi!');$('fr-code').value='';frOpen(true);});});
+ }).catch(function(){gtoast('Sunucuya ulaşılamadı, internetini kontrol et');});
+}
+function frCardSVG(f,size){var k=f.card||{};return avatarSVG({kit:k.k||{pattern:'stripes',c1:'#888',c2:'#fff',num:'?'},eq:k.eq||{acc:[],frame:null},club:k.c},size);}
+function frRender(){
+ var l=$('fr-list');
+ if(!FR.list.length){l.innerHTML='<p class="small muted" style="margin:0">Henüz arkadaşın yok. Kodunu paylaş ya da bir arkadaşının kodunu ekle.</p>';return;}
+ l.innerHTML=FR.list.map(function(f,i){var k=f.card,L=lvlOf(k.x||0);
+  return '<button type="button" class="frow" data-i="'+i+'">'+frCardSVG(f,48)+'<span class="nm"><b>'+esc(k.n||'Oyuncu')+'</b><span class="sub">Sv '+L+' · '+titleOf(L)+(k.c&&CLUBS[k.c]?' · '+esc(CLUBS[k.c].n):'')+'</span></span><span class="st'+(f.on.on?' on':'')+'">'+(f.on.on?'Çevrimiçi':(f.on.seen?agoText(f.on.seen):''))+'</span></button>';}).join('');
+}
+function frOpen(refresh){
+ if(!PROF){openEditor(true);return;}
+ show('s-friends');
+ var C=cloud();
+ $('fr-off').hidden=!!C;$('fr-on').hidden=!C;
+ if(!C)return;
+ $('fr-mycode').textContent=PROF.code||'…';
+ $('fr-demo').hidden=!DEMO_ALL_FRIENDS;
+ if(FR.busy)return;FR.busy=true;$('fr-list').innerHTML='<p class="small muted" style="margin:0">Yükleniyor…</p>';
+ profSync();
+ frLoad().then(function(list){FR.list=list;FR.busy=false;$('fr-mycode').textContent=PROF.code||'…';frRender();},function(){FR.busy=false;$('fr-list').innerHTML='<p class="small bad" style="margin:0">Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.</p>';});
+}
+function frShow(f){
+ var k=f.card,L=lvlOf(k.x||0);
+ $('fv-body').innerHTML='<div style="display:flex;gap:14px;align-items:center">'+frCardSVG(f,84)+'<div style="text-align:left"><b class="cond" style="font-size:30px;display:block;line-height:1">'+esc(k.n)+'</b><span class="pf-title" style="display:block">SEVİYE '+L+' · '+titleOf(L)+'</span>'+(k.c&&CLUBS[k.c]?'<span class="pf-club">'+crest(k.c,16)+esc(CLUBS[k.c].n)+'</span>':'')+'</div></div>'+
+  '<div class="stat-grid" style="margin-top:12px">'+[['Maç',k.pl],['Galibiyet',k.w],['Doğru',k.co],['En hızlı',k.fn?fmtMs(k.fm):'–'],['Rozet',k.b+'/8'],['Rekor',k.sb||'–']].map(function(i){return '<div class="stat"><b>'+i[1]+'</b><span>'+i[0]+'</span></div>';}).join('')+'</div>'+
+  '<p class="small muted" style="margin:10px 0 0">'+(f.on.on?'🟢 Şu an çevrimiçi':(f.on.seen?'Son görülme: '+agoText(f.on.seen):''))+(k.code?' · Kod: '+esc(k.code):'')+'</p>';
+ $('fv').hidden=false;
+}
+$('pf-friends').onclick=function(){frOpen(true);};
+$('fr-back').onclick=function(){renderProfile();show('s-profile');};
+$('fr-list').addEventListener('click',function(e){var b=e.target.closest('.frow');if(b)frShow(FR.list[+b.dataset.i]);});
+$('fv').addEventListener('click',function(e){if(e.target===this||e.target.closest('#fv-x'))this.hidden=true;});
+$('fr-add').onclick=function(){frAdd($('fr-code').value);};
+$('fr-code').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();frAdd(this.value);}});
+$('fr-copy').onclick=function(){var t='Ortak Oyuncu arkadaş kodum: '+(PROF&&PROF.code||'')+' — https://ergingurerr60-dev.github.io/ortakoyuncu/';if(navigator.share){navigator.share({text:t}).catch(function(){});return;}try{navigator.clipboard.writeText(t).then(function(){gtoast('Kod kopyalandı');});}catch(e){gtoast(PROF.code);}};
+$('fr-refresh').onclick=function(){frOpen(true);};
+/* keep the cloud copy of the profile fresh */
+(function(){var orig=saveProfile;saveProfile=function(){orig();profSyncSoon();};})();
+setTimeout(function(){if(PROF&&cloud())profSync();},2500);
+
 loadProfile();renderProfBtn();
 if(PROF){$('n1').value=PROF.name;$('on-name').value=PROF.name;}
 
@@ -2491,6 +2605,7 @@ startIntro();
    onConnection:function(h){chs.push(h);return function(){chs=chs.filter(function(x){return x!==h;});};},
    leave:function(){gone=true;base.off('value',onVal);connRef.off('value',onConn);try{ref.onDisconnect().cancel();}catch(e){}return ref.remove().catch(function(){});}};
  }
+ window.OO_CLOUD={ready:function(){return init().then(function(db){return {db:db,uid:firebase.auth().currentUser.uid,TS:firebase.database.ServerValue.TIMESTAMP};});}};
  window.claude={use:function(n){
   if(n!=='room')return Promise.resolve(null);
   return init().then(function(db){return {join:function(name){
