@@ -808,7 +808,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 <button id="emote-btn" type="button" aria-label="Emote gönder (T)"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13" fill="#fff" stroke="#7A5A00" stroke-width="2"/><circle cx="11.5" cy="13" r="1.8" fill="#1A1600"/><circle cx="20.5" cy="13" r="1.8" fill="#1A1600"/><path d="M10 18.5 Q16 25 22 18.5" fill="none" stroke="#1A1600" stroke-width="2.2" stroke-linecap="round"/></svg><span class="ek" aria-hidden="true">T</span></button>
 <div id="wheel" role="dialog" aria-label="Emote seç"><div class="wring" id="wring"></div><div class="whub" id="whub">BIRAK<br>/ İPTAL</div><div class="whint">Basılı tutup bir emote'a kaydır ve bırak, ya da dokun</div></div>
 <div id="emote-pop" aria-live="polite"></div>
-<input id="kbkeep" type="text" aria-hidden="true" tabindex="-1" autocomplete="off" style="position:fixed;top:-120px;left:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0">
+<input id="kbkeep" type="text" inputmode="none" aria-hidden="true" tabindex="-1" autocomplete="off" style="position:fixed;top:-120px;left:0;width:1px;height:1px;opacity:0;font-size:16px;border:0;padding:0">
 <div id="exit-modal" role="dialog" aria-modal="true" aria-labelledby="em-t" hidden><div class="em-box"><b id="em-t">Oyundan çıkılsın mı?</b><p id="em-p"></p><div class="row"><button class="ghost" id="em-no" type="button">Devam et</button><button class="cta" id="em-yes" type="button" style="background:#FF5A4E;color:#fff">Çık</button></div></div></div>
 <div id="gtoast" role="status" aria-live="polite"></div>
 <div id="on-banner" role="status" style="position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:20;background:#B3261E;color:#fff;padding:8px 14px;border-radius:12px;font-weight:600;font-size:14px;max-width:92%;text-align:center" hidden></div>
@@ -1440,7 +1440,7 @@ var OR={t0:0,iv:null,done:false,doneMs:0,lockUntil:0,lastWrong:null};
 function oElapsed(){return performance.now()-OR.t0;}
 function oRaceEnter(){
  show('s-orace');$('or-duel').innerHTML=duelHTML(false);
- OR.t0=performance.now();OR.done=false;OR.doneMs=0;OR.lockUntil=0;OR.lastWrong=null;
+ OR.paused=false;OR.t0=performance.now();OR.done=false;OR.doneMs=0;OR.lockUntil=0;OR.lastWrong=null;
  var inp=$('or-input');inp.value='';inp.disabled=false;$('or-sugg').innerHTML='';$('or-msg').innerHTML='';$('or-lock').textContent='';
  clearInterval(OR.iv);OR.iv=setInterval(oClock,50);oClock();
  focusIn('or-input');
@@ -1802,7 +1802,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.10.4';
+var APP_VERSION='0.10.5';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2171,7 +2171,7 @@ function bindReport(name,a,b,scope){var btn=(scope||document).querySelector('.re
 /* ---------- in-game exit (top-left on every game screen) ---------- */
 function gameLive(){return SOLO.active||(ON.active&&ON.st&&ON.st.ph!=='final'&&ON.st.ph!=='lobby')||(PT.active&&PT.st&&PT.st.ph!=='lobby'&&PT.st.ph!=='final');}
 function gameExitNow(){
- $('exit-modal').hidden=true;stopTimer();
+ $('exit-modal').hidden=true;stopTimer();OR.paused=false;
  if(SOLO.active){SOLO.active=false;SOLO.preset=null;SOLO.daily=false;SOLO.marks=null;$('s-pick').classList.remove('solo');openModes();return;}
  if(PT.active){pLeave(false);return;}
  if(ON.active){oLeave(false);return;}
@@ -2206,8 +2206,8 @@ var ANS={'or-input':1,'gx-in':1,'br-in':1,'ca-in':1,'ta-in':1,'pp-in':1,'xo-in':
 function kbWake(e){var el=e.currentTarget;if(el.getAttribute('inputmode')!=='none')return;el.removeAttribute('inputmode');if(document.activeElement===el){el._wake=1;el.blur();el._wake=0;try{el.focus({preventScroll:true});}catch(x){el.focus();}}}
 Object.keys(ANS).forEach(function(id){var el=document.getElementById(id);if(!el)return;el.addEventListener('pointerdown',kbWake);el.addEventListener('touchend',kbWake);el.addEventListener('blur',function(){if(TOUCH&&!el._wake)el.setAttribute('inputmode','none');});});
 function focusIn(id){var el=$(id);if(!el)return;if(TOUCH&&ANS[id]&&document.activeElement!==el)el.setAttribute('inputmode','none');var go=function(){if(el.disabled||el.offsetParent===null)return;try{el.focus({preventScroll:true});}catch(e){try{el.focus();}catch(e2){}}};go();setTimeout(function(){if(document.activeElement!==el)go();},90);setTimeout(function(){if(document.activeElement!==el)go();},400);}
-function kbPrime(){return;var k=$('kbkeep');try{k.focus({preventScroll:true});}catch(e){}}
-['pk-lock','ca-next','ta-skip'].forEach(function(id){var b=$(id);if(b)b.addEventListener('click',kbPrime,true);});
+function kbPrime(){var k=$('kbkeep');try{k.focus({preventScroll:true});}catch(e){}}
+['pk-lock','btn-next','se-again','ca-next','ta-skip'].forEach(function(id){var b=$(id);if(b)b.addEventListener('click',kbPrime,true);});
 $('md-list').addEventListener('click',function(e){var b=e.target.closest('.mcard');if(b&&(b.dataset.m==='daily'||b.dataset.m==='career'||b.dataset.m==='ta'))kbPrime();},true);
 
 /* ---------- extra single modes: shared helpers ---------- */
