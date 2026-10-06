@@ -40,6 +40,15 @@ body{height:100%;margin:0;background:var(--grass1);color:var(--text);font-family
 #pitch svg .ln{fill:none;stroke:var(--lines);stroke-width:.4}
 #pitch svg .sp{fill:var(--lines)}
 #app{z-index:1}
+.sk-n{font-size:84px;line-height:.9}
+.sk-n.bump{animation:skb .35s}
+@keyframes skb{40%{transform:scale(1.25);color:#3DDC97}}
+.sk-opts{display:flex;flex-direction:column;gap:10px}
+.sk-o{min-height:64px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--text);font-weight:700;font-size:20px;padding:8px 14px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .1s,background .2s,border-color .2s}
+.sk-o:active{transform:scale(.97)}
+.sk-o.ok{border-color:#3DDC97;background:rgba(61,220,151,.25)}
+.sk-o.bad{border-color:#FF6B5E;background:rgba(255,107,94,.25)}
+#sk-time.low{color:var(--bad)}
 /* ---------- friends ---------- */
 .frow{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 12px;color:var(--text);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .frow .nm{flex:1;min-width:0}
@@ -670,6 +679,16 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div style="flex:1"></div>
   <button class="ghost" id="ca-hint" type="button">Yeni ipucu aç</button>
   <button class="cta" id="ca-next" type="button" hidden>Sonraki futbolcu</button>
+</section>
+
+<section id="s-sk" class="screen">
+  <div class="pf-top"><button class="back" id="sk-back" type="button" aria-label="Modlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><span class="coinpill" id="sk-best"></span></div>
+  <div style="text-align:center"><div class="small muted" style="letter-spacing:.2em;font-weight:700">SERİ</div><div class="cond sk-n" id="sk-n">0</div></div>
+  <div class="mid"><div class="duel" id="sk-duel"></div></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="bar" style="flex:1"><i id="sk-bar"></i></div><b class="cond" id="sk-time" style="font-size:26px;min-width:26px;text-align:right">10</b></div>
+  <p class="small muted" style="margin:0;text-align:center">İki kulüpte de oynamış olanı seç</p>
+  <div class="sk-opts" id="sk-opts"></div>
+  <div id="sk-msg" style="min-height:44px;text-align:center;font-weight:600"></div>
 </section>
 
 <section id="s-ta" class="screen">
@@ -1642,7 +1661,7 @@ function renderProfile(){
  var fav=Object.keys(s.clubs).sort(function(a,b){return s.clubs[b]-s.clubs[a];})[0];
  var so=s.solo||{games:0,best:{}},mo=s.modes||{};
  var items=[['Maç',s.played],['Galibiyet',s.won],['Kazanma',s.played?Math.round(s.won/s.played*100)+'%':'–'],['Doğru cevap',s.correct],['En hızlı',s.fastName?fmtMs(s.fastMs):'–'],['En iyi seri',s.bestStreak]];
- $('pf-stats').innerHTML='<div class="stat" style="grid-column:1/-1;text-align:left"><span>TEK KİŞİLİK REKORLAR · '+so.games+' oyun</span><b style="font-size:20px">Kolay '+(so.best.kolay||'–')+' · Orta '+(so.best.orta||'–')+' · Zor '+(so.best.zor||'–')+'</b></div><div class="stat" style="grid-column:1/-1;text-align:left"><span>MOD REKORLARI</span><b style="font-size:18px">Grid '+((mo.grid||{}).best||'–')+' · Köprü '+((mo.bridge||{}).best||'–')+' · Kariyer '+((mo.career||{}).best||'–')+' · Zamana karşı '+((mo.ta||{}).best||'–')+'</b></div>'+items.map(function(i){return '<div class="stat"><b>'+i[1]+'</b><span>'+i[0]+'</span></div>';}).join('')+
+ $('pf-stats').innerHTML='<div class="stat" style="grid-column:1/-1;text-align:left"><span>TEK KİŞİLİK REKORLAR · '+so.games+' oyun</span><b style="font-size:20px">Kolay '+(so.best.kolay||'–')+' · Orta '+(so.best.orta||'–')+' · Zor '+(so.best.zor||'–')+'</b></div><div class="stat" style="grid-column:1/-1;text-align:left"><span>MOD REKORLARI</span><b style="font-size:18px">Grid '+((mo.grid||{}).best||'–')+' · Köprü '+((mo.bridge||{}).best||'–')+' · Kariyer '+((mo.career||{}).best||'–')+' · Zamana karşı '+((mo.ta||{}).best||'–')+' · Sonuna kadar '+((mo.sk||{}).best?mo.sk.best/100:'–')+'</b></div>'+items.map(function(i){return '<div class="stat"><b>'+i[1]+'</b><span>'+i[0]+'</span></div>';}).join('')+
   (s.fastName||fav?'<div class="stat" style="grid-column:1/-1;text-align:left"><span>'+(s.fastName?'En hızlı cevabın: <b style="display:inline;font-size:16px">'+esc(s.fastName)+'</b>':'')+(fav&&CLUBS[fav]?'<br>En çok bildiğin kulüp: <b style="display:inline;font-size:16px">'+esc(CLUBS[fav].n)+'</b>':'')+'</span></div>':'');
  $('pf-badges').innerHTML=BADGES.map(function(b,i){var on=p.badges.indexOf(b[0])>-1;return '<div class="badge-it'+(on?'':' lock')+'" title="'+esc(b[2])+'">'+badgeSVG(i)+'<span>'+esc(b[1])+'</span></div>';}).join('');
  $('pf-hist').innerHTML=p.hist.length?p.hist.slice(0,10).map(function(m){var d=new Date(m.d);if(m.mode==='m')return '<div class="hrow"><span>'+esc(m.name)+'</span><span><b>'+m.score+'</b> <span class="small muted">'+d.getDate()+'.'+(d.getMonth()+1)+'</span></span></div>';if(m.mode==='party')return '<div class="hrow"><span>🎉 Çok oyunculu · '+m.n+' kişi</span><span><b class="'+(m.rank===1?'w':'')+'">'+m.rank+'. · '+m.score+'</b> <span class="small muted">'+d.getDate()+'.'+(d.getMonth()+1)+'</span></span></div>';if(m.mode==='solo')return '<div class="hrow"><span>🎯 Tek kişilik · '+esc(m.diff||'')+'</span><span><b>'+m.correct+'/'+m.rounds+' · '+m.score+'</b> <span class="small muted">'+d.getDate()+'.'+(d.getMonth()+1)+'</span></span></div>';return '<div class="hrow"><span>'+(m.mode==='online'?'📱 ':'')+'vs <b>'+esc(m.opp)+'</b></span><span><b class="'+(m.won?'w':'l')+'">'+m.my+'-'+m.th+' '+(m.won?'G':'M')+'</b> <span class="small muted">'+d.getDate()+'.'+(d.getMonth()+1)+'</span></span></div>';}).join(''):'<p class="small muted" style="margin:0">Henüz maç yok. İlk maçını oyna!</p>';
@@ -1802,7 +1821,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.10.5';
+var APP_VERSION='0.11.0';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2234,7 +2253,8 @@ var MODES=[
  {id:'grid',e:'▦',c:'#2F6BFF',n:'Grid',d:'3x3 tabloyu kulüp kesişimleriyle doldur.'},
  {id:'bridge',e:'🌉',c:'#7C3AED',n:'Köprü Kur',d:'Ortak oyuncusu olmayan iki kulübü bağla.'},
  {id:'career',e:'🕵️',c:'#F58220',n:'Kariyer Tahmini',d:'Kulüplerinden futbolcuyu bul.'},
- {id:'ta',e:'⏱️',c:'#E30613',n:'Zamana Karşı',d:'60 saniyede kaç eşleşme bilebilirsin?'}];
+ {id:'ta',e:'⏱️',c:'#E30613',n:'Zamana Karşı',d:'60 saniyede kaç eşleşme bilebilirsin?'},
+ {id:'sk',e:'🏁',c:'#0EA5E9',n:'Sonuna Kadar',d:'İki isimden doğrusunu seç. İlk yanlışta biter, ne kadar gidebilirsin?'}];
 function modeBest(id){var m=PROF&&PROF.st.modes&&PROF.st.modes[id];return m&&m.best?m.best:0;}
 function setMode(m){document.body.setAttribute('data-mode',m);}
 function openModes(){
@@ -2243,13 +2263,14 @@ function openModes(){
  $('md-list').innerHTML=MODES.map(function(m){var extra='';
   if(m.id==='classic'){var b=PROF&&PROF.st.solo&&PROF.st.solo.best;if(b&&(b.kolay||b.orta||b.zor))extra='Rekor: '+Math.max(b.kolay||0,b.orta||0,b.zor||0);}
   else if(m.id==='daily')extra=dd?'Bugün oynandı · '+dd.marks.join('')+' · '+dd.score:'Bugün henüz oynamadın';
+  else if(m.id==='sk'&&modeBest('sk'))extra='Rekor: '+(modeBest('sk')/100)+' doğru üst üste';
   else if(modeBest(m.id))extra='Rekor: '+modeBest(m.id);
   return '<button type="button" class="mcard" data-m="'+m.id+'"><span class="ic" style="background:'+m.c+'33;border:2px solid '+m.c+'">'+m.e+'</span><span class="tx"><b>'+esc(m.n)+'</b><span>'+esc(m.d)+'</span>'+(extra?'<br><em>'+esc(extra)+'</em>':'')+'</span></button>';}).join('');
  show('s-modes');
 }
 $('md-back').onclick=function(){show('s-intro');renderProfBtn();};
 $('md-list').addEventListener('click',function(e){var b=e.target.closest('.mcard');if(!b)return;var m=b.dataset.m;
- if(m==='classic')show('s-start');else if(m==='daily')dailyStart();else if(m==='grid')gridStart();else if(m==='bridge')bridgeStart();else if(m==='career')careerStart();else if(m==='ta')taStart();});
+ if(m==='classic')show('s-start');else if(m==='daily')dailyStart();else if(m==='grid')gridStart();else if(m==='bridge')bridgeStart();else if(m==='career')careerStart();else if(m==='ta')taStart();else if(m==='sk')skStart();});
 /* ---------- GRID ---------- */
 function genGrid(minC,rng){
  rng=rng||Math.random;var big=bigClubs().slice(0,36);
@@ -2386,6 +2407,54 @@ function careerDone(ok,pts){
  var nb=$('ca-next');nb.hidden=false;nb.textContent=CA.round>=5?'Sonuçları gör':'Sonraki futbolcu';
  nb.onclick=function(){if(CA.round>=5){var rr=modeReward('career','🕵️ Kariyer Tahmini',CA.total);endScreen({sub:'Kariyer Tahmini · 5 futbolcu',score:CA.total,rec:rr.rec,rw:rr.rw,chips:['<div class="chip">Bilinen<b>'+CA.correct+' / 5</b></div>'],again:careerStart});}else careerNext();};
 }
+/* ---------- SONUNA KADAR: two clubs, two names, one is right; first miss ends the run ---------- */
+var SK=null,SKT=10000;
+function skPick(){
+ var n=SK.n,big=bigClubs(),top=big.slice(0,Math.min(big.length,n<5?30:n<15?60:110));
+ var minC=n<5?6:n<15?3:1,minF=n<5?40:n<15?20:0;
+ for(var t=0;t<600;t++){
+  var a=top[rnd(top.length)],b=top[rnd(top.length)];if(a===b||SK.used[a<b?a+b:b+a]||pairCount(a,b)<minC)continue;
+  var ok=common(a,b).filter(function(p){return p.fame>=minF;});if(!ok.length)continue;
+  var good=ok[rnd(Math.min(ok.length,n<5?5:12))];if(n<5)ok.sort(function(x,y){return y.fame-x.fame;}),good=ok[rnd(Math.min(ok.length,5))];
+  /* decoy: played for one of the two clubs only, similar fame, different name */
+  var pool=PLAYERS.filter(function(p){var ia=p.clubs.indexOf(a)>-1,ib=p.clubs.indexOf(b)>-1;return (ia!==ib)&&p.key!==good.key&&Math.abs(p.fame-good.fame)<=Math.max(15,good.fame*.5);});
+  if(!pool.length)continue;
+  var bad=pool[rnd(pool.length)];SK.used[a<b?a+b:b+a]=1;
+  return {a:a,b:b,good:good,bad:bad};
+ }
+ return null;
+}
+function skStart(){SK={n:0,used:{},over:false,best:modeBest('sk'),fast:0};show('s-sk');skNext();}
+function skNext(){
+ var q=skPick();if(!q){skEnd('Soru kalmadı, efsanesin!');return;}
+ SK.q=q;SK.lock=false;G.picks=[q.a,q.b];G.names=['',''];
+ $('sk-duel').innerHTML=duelHTML(false);
+ var opts=Math.random()<.5?[q.good,q.bad]:[q.bad,q.good];
+ $('sk-opts').innerHTML=opts.map(function(p){return '<button type="button" class="sk-o" data-k="'+esc(p.key)+'">'+esc(p.name)+'</button>';}).join('');
+ $('sk-n').textContent=SK.n;$('sk-best').textContent=SK.best?'Rekor: '+(SK.best/100)+' doğru':'';$('sk-best').hidden=!SK.best;
+ SK.t0=performance.now();clearInterval(SK.iv);SK.iv=setInterval(skTick,50);skTick();
+ var d=$('sk-duel');d.classList.remove('pop');void d.offsetWidth;d.classList.add('pop');
+}
+function skTick(){if(!SK||SK.over||SK.lock||SK.paused)return;if(!$('s-sk').classList.contains('on')){clearInterval(SK.iv);return;}var left=Math.max(0,SKT-(performance.now()-SK.t0));$('sk-bar').style.width=(left/SKT*100)+'%';$('sk-time').textContent=Math.ceil(left/1000);$('sk-time').classList.toggle('low',left<3000);if(left<=0)skAnswer(null);}
+function skAnswer(btn){
+ if(SK.lock||SK.over)return;SK.lock=true;clearInterval(SK.iv);
+ var ok=btn&&btn.dataset.k===SK.q.good.key,ms=performance.now()-SK.t0;
+ document.querySelectorAll('#sk-opts .sk-o').forEach(function(b){b.disabled=true;if(b.dataset.k===SK.q.good.key)b.classList.add('ok');else if(b===btn)b.classList.add('bad');});
+ if(ok){SK.n++;if(!SK.fast||ms<SK.fast)SK.fast=ms;$('sk-n').textContent=SK.n;var c=$('sk-n');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump');profRound(ms,SK.q.good.name);if(navigator.vibrate){try{navigator.vibrate(25);}catch(e){}}setTimeout(skNext,550);return;}
+ if(btn)shake(btn);else if(navigator.vibrate){try{navigator.vibrate(120);}catch(e){}}
+ var why=CLUBS[SK.q.bad.clubs.indexOf(SK.q.a)>-1?SK.q.b:SK.q.a].n;
+ $('sk-msg').innerHTML=(btn?'<span class="bad">'+esc(SK.q.bad.name)+' '+esc(why)+' forması giymedi.</span>':'<span class="bad">Süre doldu!</span>')+'<br><span class="small muted">Doğrusu: '+esc(SK.q.good.name)+'</span>';
+ setTimeout(function(){skEnd();},1800);
+}
+function skEnd(note){
+ if(SK.over)return;SK.over=true;clearInterval(SK.iv);$('sk-msg').textContent='';
+ var score=SK.n*100,rr=modeReward('sk','🏁 Sonuna Kadar · '+SK.n+' doğru',score);
+ var chips=['<div class="chip">Seri<b>'+SK.n+' doğru</b></div>'];if(SK.fast)chips.push('<div class="chip">En hızlı<b>'+fmtMs(SK.fast)+'</b></div>');if(note)chips.unshift('<div class="chip">🏆<b>'+esc(note)+'</b></div>');
+ endScreen({sub:'Sonuna Kadar',score:score,rec:rr.rec,rw:rr.rw,chips:chips,again:skStart});
+}
+$('sk-opts').addEventListener('click',function(e){var b=e.target.closest('.sk-o');if(b)skAnswer(b);});
+$('sk-back').onclick=function(){if(SK&&!SK.over&&SK.n>0){var t=performance.now();SK.paused=true;askExit('Serin burada biter, '+SK.n+' doğru kaydedilmeyecek.',function(){SK.over=true;clearInterval(SK.iv);openModes();},function(){SK.t0+=performance.now()-t;SK.paused=false;});}else{if(SK){SK.over=true;clearInterval(SK.iv);}openModes();}};
+
 /* ---------- ZAMANA KARŞI ---------- */
 var TA=null;
 function taPair(){var big=bigClubs().slice(0,40);for(var t=0;t<300;t++){var a=big[rnd(big.length)],b=big[rnd(big.length)];if(a!==b&&pairCount(a,b)>=3&&!TA.used[a+'|'+b])return [a,b];}return [big[0],big[1]];}
