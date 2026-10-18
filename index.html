@@ -296,7 +296,8 @@ body.online.emote-ok #emote-btn{display:flex}
 .rs-av{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:700;transition:filter .4s,transform .4s}
 .rs-av.cheer .dav-card{animation:avCheer .9s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(255,210,63,.55))}
 .rs-av.sad{filter:grayscale(.7) brightness(.72);transform:translateY(10px) scale(.9)}
-.rs-ball{position:absolute;top:-6px;right:-14px;font-style:normal;font-size:22px;animation:avBallUp 1s ease-in-out infinite}
+.rs-av .av-ball,.dv-av .av-ball{animation:none!important}
+.rs-ball{display:none;position:absolute;top:-6px;right:-14px;font-style:normal;font-size:22px;animation:avBallUp 1s ease-in-out infinite}
 @keyframes avCheer{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-16px) rotate(-4deg)}50%{transform:translateY(0)}75%{transform:translateY(-11px) rotate(4deg)}}
 @keyframes avBallUp{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(180deg)}}
 @media (prefers-reduced-motion:reduce){.rs-av.cheer .dav-card,.rs-ball,.dv-av{animation:none!important}}
@@ -341,7 +342,8 @@ select{width:100%;height:50px;border-radius:12px;border:1px solid var(--line);ba
 .sitem .eq.on{border-color:var(--accent-line);background:var(--surface2)}
 .pchip{display:flex;align-items:center;gap:10px;align-self:flex-start;min-height:48px;padding:4px 14px 4px 4px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:600;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .mx-fb{position:absolute;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));left:12px;width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;justify-content:center;padding:0}
-.mx-prof{position:absolute;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:12px;min-width:52px;min-height:52px;border-radius:14px;border:none;background:none;padding:0;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.mx-prof{position:absolute;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));right:12px;width:58px;height:58px;border-radius:50%;border:none;background:none;padding:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
+.mx-prof .dav-in img{width:160%;left:-30%;top:-9%;bottom:auto}
 .mx-prof .pp-plus{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.35);color:#fff}
 #gtoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:#0E1A14;color:#fff;padding:10px 16px;border-radius:14px;font-weight:600;font-size:15px;max-width:90%;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
 #gtoast.on{opacity:1}
@@ -2468,7 +2470,7 @@ function duelAvs(){
  return [avCard()||genAv(G.names[0],G.picks[0]),genAv(G.names[1],G.picks[1],G.cpuSeed)];}
 function rsAvs(w){var b=$('rs-avs');if(!b)return;var avs=duelAvs();if(!avs){b.innerHTML='';return;}
  b.innerHTML=[0,1].map(function(i){var cls=w===null||w===undefined?'sad':(i===w?'cheer':'sad');
-  return '<div class="rs-av '+cls+'">'+avatarSVG(avs[i],170,{card:true,mini:true})+'<span>'+esc(G.names[i])+'</span>'+(cls==='cheer'?'<i class="rs-ball">⚽</i>':'')+'</div>';}).join('');}
+  return '<div class="rs-av '+cls+'">'+avatarSVG(avs[i],170,{card:true,mini:true})+'<span>'+esc(G.names[i])+'</span>'+'</div>';}).join('');}
 /* ---------- cloud save (Google) ---------- */
 var CLOUDK='oo-linked',CLOUD={t:null,last:''};
 function cloudLinked(){try{return localStorage.getItem(CLOUDK)||'';}catch(e){return '';}}
@@ -2587,7 +2589,7 @@ function profMatch(){
 }
 /* entry points */
 var PF={back:'s-intro'};
-function renderProfBtn(){var b=$('btn-prof');if(!b)return;b.innerHTML=PROF?avatarSVG(PROF,124,{card:true,mini:true}):'<span class="pp-plus"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>';}
+function renderProfBtn(){var b=$('btn-prof');if(!b)return;b.innerHTML=PROF?avatarSVG(PROF,58):'<span class="pp-plus"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>';}
 function renderPChip(){var c=$('pchip');if(!c)return;
  if(PROF){c.innerHTML=avatarSVG(PROF,40)+'<span>'+esc(PROF.name)+' · Sv '+lvlOf(PROF.xp)+'</span>'+'<span class="coinpill" style="padding:2px 8px 2px 4px;border:none;background:none">'+$('pf-coins').previousElementSibling.outerHTML+PROF.coins+'</span>';if(!$('n1').value)$('n1').value=PROF.name;}
  else c.innerHTML='<span class="pp-plus" style="width:40px;height:40px;background:var(--surface2);border-color:var(--line);color:var(--text)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><span>Profil oluştur</span>';}
@@ -2803,7 +2805,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.27.0';
+var APP_VERSION='0.27.2';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
