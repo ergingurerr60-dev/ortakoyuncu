@@ -2,7 +2,7 @@
 <html lang="tr" class="aur">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Ortak Oyuncu</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#07080c">
@@ -40,6 +40,7 @@ body{height:100%;margin:0;background:var(--grass1);color:var(--text);font-family
 #pitch svg .ln{fill:none;stroke:var(--lines);stroke-width:.4}
 #pitch svg .sp{fill:var(--lines)}
 #app{z-index:1}
+html,body,button,input,a,label,.seg,.stepper{touch-action:manipulation}
 .sk-n{font-size:84px;line-height:.9}
 .sk-n.bump{animation:skb .35s}
 @keyframes skb{40%{transform:scale(1.25);color:#3DDC97}}
@@ -1256,7 +1257,7 @@ function waitScreen(top,title,text,btn){
  if(!$('s-wait').classList.contains('on'))show('s-wait');
 }
 var ENTRY='duel';
-function openEntry(m){ENTRY=m;setMode(m==='party'?'party':'duel');$('on-title').textContent=m==='party'?'ÇOK OYUNCULU':'1V1 DÜELLO';if(!$('on-name').value)$('on-name').value=$('n1').value.trim()||(PROF?PROF.name:'');oStatus('');show('s-online');getRoom();if(!$('on-name').value)focusIn('on-name');}
+function openEntry(m){ENTRY=m;setMode(m==='party'?'party':'duel');$('on-title').textContent=m==='party'?'ÇOK OYUNCULU':'1V1 DÜELLO';if(!$('on-name').value)$('on-name').value=$('n1').value.trim()||(PROF?PROF.name:'');oStatus('');$('on-code').value='';show('s-online');getRoom();if(!$('on-name').value)focusIn('on-name');}
 $('btn-online').onclick=function(){openEntry('duel');};
 $('on-back').onclick=function(){show('s-intro');renderProfBtn();};
 $('on-create').onclick=function(){if(ENTRY==='party')pEnter(true,genCode());else oEnter(0,genCode());};
@@ -1291,7 +1292,7 @@ function oLeave(toEntry){
  if(ON.room){try{ON.room.leave().catch(function(){});}catch(e){}}
  ON.active=false;ON.room=null;ON.st=null;banner('');emReset();document.body.classList.remove('online','emote-ok');
  $('btn-rematch').disabled=false;$('btn-rematch').textContent='Rövanş';$('btn-next').disabled=false;$('btn-menu').textContent='Ana menü';
- if(toEntry===true){oStatus('');show('s-online');}else{show('s-intro');renderProfBtn();}
+ if(toEntry===true){oStatus('');$('on-code').value='';show('s-online');}else{show('s-intro');renderProfBtn();}
 }
 function diag(){var d=$('on-diag');if(!d)return;if(!ON.active||!ON.room){d.textContent='';return;}var n=0;try{n=ON.room.peers().length;}catch(e){}var c=false;try{c=ON.room.connected();}catch(e){}d.textContent='Bağlantı: '+(c?'açık':'bekleniyor')+' · Odada görünen: '+n+' cihaz · Oda: '+ON.code.toUpperCase();}
 function onPeers(ch){
@@ -1824,7 +1825,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.12.1';
+var APP_VERSION='0.12.2';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -1895,7 +1896,7 @@ function pLeave(toEntry){
  clearInterval(PT.tick);clearTimeout(PT.hto);clearTimeout(PT.rto);stopTimer();
  if(PT.room){try{PT.room.leave().catch(function(){});}catch(e){}}
  PT.active=false;PT.room=null;PT.st=null;banner('');
- if(toEntry===true){oStatus('');show('s-online');}else{show('s-intro');renderProfBtn();}
+ if(toEntry===true){oStatus('');$('on-code').value='';show('s-online');}else{show('s-intro');renderProfBtn();}
 }
 $('pl-leave').onclick=function(){pLeave(true);};$('pf2-leave').onclick=function(){pLeave(false);};
 function pPartyPeers(peers){return peers.filter(function(p){return p.presence&&p.presence.mode==='party'&&p.presence.pid;});}
@@ -2229,6 +2230,8 @@ function kbWake(e){var el=e.currentTarget;if(el.getAttribute('inputmode')!=='non
 Object.keys(ANS).forEach(function(id){var el=document.getElementById(id);if(!el)return;el.addEventListener('touchend',kbWake,{passive:false});el.addEventListener('blur',function(){if(TOUCH&&!el._wake)el.setAttribute('inputmode','none');});});
 document.querySelectorAll('input[type=search],input[type=text]').forEach(function(i){i.setAttribute('autocomplete','off');i.setAttribute('autocorrect','off');i.spellcheck=false;});
 document.addEventListener('touchend',function(e){var el=e.target;if(el&&el.tagName==='INPUT'&&document.activeElement===el&&e.cancelable)e.preventDefault();},{passive:false});
+document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+var LASTTAP=0;document.addEventListener('touchend',function(e){var now=Date.now();if(now-LASTTAP<350&&e.target.closest&&e.target.closest('button')&&e.cancelable){e.preventDefault();e.target.closest('button').click();}LASTTAP=now;},{passive:false});
 function focusIn(id){var el=$(id);if(!el)return;if(TOUCH&&ANS[id]&&document.activeElement!==el)el.setAttribute('inputmode','none');var go=function(){if(el.disabled||el.offsetParent===null)return;try{el.focus({preventScroll:true});}catch(e){try{el.focus();}catch(e2){}}};go();setTimeout(function(){if(document.activeElement!==el)go();},90);setTimeout(function(){if(document.activeElement!==el)go();},400);}
 function kbPrime(){var k=$('kbkeep');try{k.focus({preventScroll:true});}catch(e){}}
 ['pk-lock','btn-next','se-again','ca-next','ta-skip'].forEach(function(id){var b=$(id);if(b)b.addEventListener('click',kbPrime,true);});
