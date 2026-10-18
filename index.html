@@ -625,9 +625,11 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div id="pe-kit" hidden>
   <div class="field"><label for="pe-club" class="small muted">Tuttuğun takım</label><select id="pe-club"></select></div>
   <div class="field"><span class="small muted">Arka plan deseni</span><div class="chips" id="pe-pat"></div></div>
-  <div class="field"><span class="small muted">Forma rengi</span><div class="sw" id="pe-c1"></div></div>
-  <div class="field"><span class="small muted">İkinci renk (şapka, arka plan)</span><div class="sw" id="pe-c2"></div></div>
-  <div class="field" hidden><span class="small muted">Şort rengi</span><div class="sw" id="pe-sh"></div></div>
+  <div class="field"><span class="small muted">Forma (tişört) rengi</span><div class="sw" id="pe-c1"></div></div>
+  <div class="field"><span class="small muted">İkinci renk (şerit, numara)</span><div class="sw" id="pe-c2"></div></div>
+  <div class="field"><span class="small muted">Şort rengi</span><div class="sw" id="pe-sh"></div></div>
+  <div class="field"><span class="small muted">Çorap rengi</span><div class="sw" id="pe-so"></div></div>
+  <div class="field"><span class="small muted">Krampon rengi</span><div class="sw" id="pe-bt"></div></div>
   <div class="field"><label for="pe-num" class="small muted">Forma numarası</label><input id="pe-num" type="text" inputmode="numeric" maxlength="2" autocomplete="off"></div>
   </div>
   <button class="cta" id="pe-save">Kaydet</button>
@@ -2288,7 +2290,7 @@ var DBMAP={};SLOT={};
 STORE=[];
 DBSTYLE.forEach(function(d){var it={id:d[0],cat:'style',n:d[3],p:d[4],part:d[1],v:d[2]};if(d[5])it.req=d[5];STORE.push(it);});
 DBITEMS.forEach(function(d){var it={id:d[0],cat:d[1],n:d[4],p:d[5]};if(d[6])it.req=d[6];STORE.push(it);DBMAP[d[0]]=[d[2],d[3]];SLOT[d[0]]=d[2]==='acc'?'eyes':d[2]==='top'?'hat':'body';});
-[['boot_white','Beyaz krampon',250,null],['wrist','Bileklik',300,{lvl:2}],['ball','Top',350,{lvl:2}],['boot_neon','Neon krampon',500,{lvl:4}],['armband','Kaptan bandı',600,{lvl:5}],['gloves','Kaleci eldiveni',700,{lvl:5}],['wrist_gold','Altın bileklik',1000,{lvl:8,wins:10}],['boot_gold','Altın krampon',1400,{lvl:9,wins:15}],['ball_gold','Altın top',2000,{lvl:12,wins:25}],['trophy','Şampiyonluk kupası',3000,{lvl:15,wins:50}]].forEach(function(d){var it={id:d[0],cat:'gear',n:d[1],p:d[2]};if(d[3])it.req=d[3];STORE.push(it);SLOT[d[0]]={boot_white:'feet',boot_neon:'feet',boot_gold:'feet',ball:'ball',ball_gold:'ball'}[d[0]]||d[0];});
+[['wrist','Bileklik',300,{lvl:2}],['ball','Top',350,{lvl:2}],['boot_neon','Neon krampon',500,{lvl:4}],['armband','Kaptan bandı',600,{lvl:5}],['gloves','Kaleci eldiveni',700,{lvl:5}],['wrist_gold','Altın bileklik',1000,{lvl:8,wins:10}],['boot_gold','Altın krampon',1400,{lvl:9,wins:15}],['ball_gold','Altın top',2000,{lvl:12,wins:25}],['trophy','Şampiyonluk kupası',3000,{lvl:15,wins:50}]].forEach(function(d){var it={id:d[0],cat:'gear',n:d[1],p:d[2]};if(d[3])it.req=d[3];STORE.push(it);SLOT[d[0]]={boot_white:'feet',boot_neon:'feet',boot_gold:'feet',ball:'ball',ball_gold:'ball'}[d[0]]||d[0];});
 STORE.push({id:'pat_hoops',cat:'pat',n:'Yatay çizgili arka plan',p:120,pat:'hoops'},{id:'pat_sash',cat:'pat',n:'Çapraz şeritli arka plan',p:120,pat:'sash'},{id:'fr_neon',cat:'frame',n:'Neon çerçeve',p:200},{id:'fr_fire',cat:'frame',n:'Ateş çerçeve',p:200},{id:'fr_gold',cat:'frame',n:'Altın çerçeve',p:300},{id:'fr_legend',cat:'frame',n:'Efsane çerçeve',p:2500,req:{lvl:14,badges:8}});
 STORE.sort(function(a,b){var o={style:0,head:1,cloth:2,gear:3,pat:4,frame:5};return (o[a.cat]-o[b.cat])||(a.p-b.p);});
 function hx(c){return String(c||'').replace('#','').toLowerCase();}
@@ -2319,19 +2321,20 @@ function avatarSVG(p,size,ov){
   /* stylised-athletic proportions (≈6 heads): head h=133 (skull 42 → chin 175), ground at 840 */
   var acc=ov.acc||(p.eq&&p.eq.acc)||[],has=function(x){return acc.indexOf(x)>-1;};
   var sk=k.skin||SKINC[1],skL=shade(sk,1.1),skD=shade(sk,.8),skDD=shade(sk,.66),sh=k.sh||'#FFFFFF',shD=shade(sh,.82),nc=hx(c2)===hx(c1)?'#FFFFFF':c2,c1D=shade(c1,.72),c1L=mix(c1,'#ffffff',.14);
-  var gearB=has('boot_white')||has('boot_neon')||has('boot_gold'),boot=has('boot_gold')?'url(#'+id+'g)':has('boot_neon')?'#C6FF1A':has('boot_white')?'#F4F4F4':'#1E2328',bootS=gearB?'#1E2328':c1,sole=gearB?'#2A2F36':'#0E1114';
+  var so=k.so||c1,soD=shade(so,.72),bt=k.bt||'#1E2328',btLight=parseInt(hx(bt).slice(0,2),16)*.3+parseInt(hx(bt).slice(2,4),16)*.59+parseInt(hx(bt).slice(4,6),16)*.11>150;
+  var gearB=has('boot_neon')||has('boot_gold'),boot=has('boot_gold')?'url(#'+id+'g)':has('boot_neon')?'#C6FF1A':bt,bootS=(gearB||btLight)?'#1E2328':(hx(c2)===hx(bt)?'#FFFFFF':nc),sole=(gearB||btLight)?'#2A2F36':'#0E1114';
   var MIR=' transform="matrix(-1 0 0 1 280 0)"',VH=870,w=Math.round(size*360/VH),dust='';
   if(!ov.mini)[[-20,790,0],[300,720,.9],[0,600,1.7],[290,480,2.4],[-24,340,3.1],[296,220,.5],[10,110,1.3],[262,60,2]].forEach(function(d){dust+='<circle class="av-dust" cx="'+d[0]+'" cy="'+d[1]+'" r="3.4" fill="'+c2+'" style="animation-delay:'+d[2]+'s"/>';});
   var cl=CLUBS[p.club],crest=cl?'<g transform="translate(80 270) scale(.78)"><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 C12 38 4 32 4 22 V8 Z" fill="'+cl.c[0]+'"/><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 Z" fill="'+cl.c[1]+'"/><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 C12 38 4 32 4 22 V8 Z" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2"/></g>':'';
   /* soft cylinder shading for limbs (dark edge → light centre → dark edge) */
   var G=function(n,a,b,c){return '<linearGradient id="'+id+n+'" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="'+a+'"/><stop offset=".45" stop-color="'+b+'"/><stop offset=".62" stop-color="'+c+'"/><stop offset="1" stop-color="'+a+'"/></linearGradient>';};
-  var defs2=G('sk',skD,sk,skL)+G('c1',c1D,c1,c1L)+G('sh',shD,sh,mix(sh,'#ffffff',.2))+'<linearGradient id="'+id+'tv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset=".22" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".07"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient>';
+  var defs2=G('sk',skD,sk,skL)+G('c1',c1D,c1,c1L)+G('so',soD,so,mix(so,'#ffffff',.14))+G('sh',shD,sh,mix(sh,'#ffffff',.2))+'<linearGradient id="'+id+'tv" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset=".22" stop-color="#000" stop-opacity="0"/><stop offset=".55" stop-color="#fff" stop-opacity=".07"/><stop offset=".8" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient>';
   var SK='url(#'+id+'sk)',C1='url(#'+id+'c1)',SH='url(#'+id+'sh)';
   var soft=function(d,o){return '<path d="'+d+'" fill="none" stroke="#000" stroke-opacity="'+(o||.08)+'" stroke-width="2.4" stroke-linecap="round"/>';};
   /* leg (left; mirrored for the right) */
   var leg='<path d="M66 538 L132 544 Q130 590 124 628 Q121 642 118 652 L88 652 Q84 640 80 626 Q70 588 66 538 Z" fill="'+SK+'"/>'+
    soft('M84 556 Q92 590 102 618')+soft('M118 600 Q123 614 117 628',.07)+'<ellipse cx="103" cy="640" rx="12" ry="8" fill="#fff" opacity=".12"/>'+soft('M92 648 Q103 653 114 648',.1)+
-   '<path d="M86 650 L120 650 Q129 680 126 712 Q122 760 117 802 L94 802 Q91 760 88 718 Q80 684 86 650 Z" fill="'+C1+'"/><path d="M86 650 L120 650 L121 662 L85 662 Z" fill="'+nc+'"/><path d="M85 667 L122 667 L122.5 672 L84.5 672 Z" fill="'+nc+'" opacity=".85"/>'+
+   '<path d="M86 650 L120 650 Q129 680 126 712 Q122 760 117 802 L94 802 Q91 760 88 718 Q80 684 86 650 Z" fill="url(#'+id+'so)"/><path d="M86 650 L120 650 L121 662 L85 662 Z" fill="'+(hx(so)===hx(nc)?c1:nc)+'"/><path d="M85 667 L122 667 L122.5 672 L84.5 672 Z" fill="'+(hx(so)===hx(nc)?c1:nc)+'" opacity=".85"/>'+
    '<path d="M95 690 Q104 684 114 690 L113 742 Q104 748 96 742 Z" fill="#000" opacity=".07"/>'+
    '<path d="M92 798 L119 798 Q124 818 124 830 Q123 840 110 840 L70 840 Q57 838 60 828 Q64 816 92 798 Z" fill="'+boot+'"/><path d="M60 832 Q62 840 72 841 L112 841 Q123 841 124 833 L124 837 Q123 845 110 845 L70 845 Q58 843 60 832 Z" fill="'+sole+'"/>'+
    '<path d="M70 826 Q90 816 116 824" fill="none" stroke="'+bootS+'" stroke-width="4" stroke-linecap="round"/><path d="M100 802 L112 812 M96 806 L108 816" stroke="#fff" stroke-opacity=".35" stroke-width="1.6"/>'+
@@ -2386,6 +2389,7 @@ function migrate6(){if(!PROF||PROF.mig6)return;var ids={};STORE.forEach(function
  PROF.mig6=1;saveProfile();}
 
 /* undo the short-lived 3D version (v0.23): map its look back, refund pieces that only existed there */
+function migrate25(){if(!PROF||PROF.m25)return;var i=(PROF.owned||[]).indexOf('boot_white');if(i>-1){PROF.owned.splice(i,1);PROF.coins+=250;PROF.kit.bt='#FFFFFF';setTimeout(function(){gtoast('Krampon rengi artık ücretsiz seçiliyor · 250 jeton iade edildi');},1400);}PROF.eq.acc=(PROF.eq.acc||[]).filter(function(x){return x!=='boot_white';});PROF.m25=1;saveProfile();}
 function migrateBack(){if(!PROF||!PROF.mig7||PROF.back23)return;
  var o=PROF.look||{},own=function(id){return (PROF.owned||[]).indexOf(id)>-1;};
  var hm={kisa:'shortFlat',yan:'theCaesarAndSidePart',kazima:'shavedSides',kakul:'shortRound',dalgali:'shortWaved',kivircik:'shortCurly',uzun:'straight01',topuz:'bun',afro:'fro',kel:'kel',mullet:'shaggyMullet',rasta:'dreads'};
@@ -2423,7 +2427,7 @@ var BADGES=[
  ['vet','Veteran','10 maç oyna',function(p){return p.st.played>=10;}],
  ['kol','Koleksiyoncu','Mağazadan 3 ürün al',function(p){return p.owned.length>=3;}]];
 function uid(){try{if(crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'p'+Date.now().toString(36)+rnd(1e9).toString(36);}
-function newProfile(){return {v:1,mig6:1,id:uid(),created:Date.now(),name:'',club:'gs',kit:{pattern:'stripes',c1:'#E30613',c2:'#FFFFFF',num:'10',sh:'#FFFFFF',skin:'#EDB98A'},coins:100,xp:0,owned:[],eq:{acc:[],frame:null},look:Object.assign({},LOOKDEF),badges:[],st:{played:0,won:0,lost:0,correct:0,fastMs:0,fastName:'',streak:0,bestStreak:0,trCorrect:0,clubs:{}},hist:[]};}
+function newProfile(){return {v:1,mig6:1,m25:1,id:uid(),created:Date.now(),name:'',club:'gs',kit:{pattern:'stripes',c1:'#E30613',c2:'#FFFFFF',num:'10',sh:'#FFFFFF',skin:'#EDB98A'},coins:100,xp:0,owned:[],eq:{acc:[],frame:null},look:Object.assign({},LOOKDEF),badges:[],st:{played:0,won:0,lost:0,correct:0,fastMs:0,fastName:'',streak:0,bestStreak:0,trCorrect:0,clubs:{}},hist:[]};}
 function loadProfile(){try{var s=localStorage.getItem(PKEY);if(s){var p=JSON.parse(s);if(p&&p.v===1)PROF=p;}}catch(e){}
  /* a favourite club that left our leagues (relegated) is cleared; the player just picks a new one */
  if(PROF&&PROF.club&&!CLUBS[PROF.club]){PROF.oldClub=PROF.club;PROF.club='';}}
@@ -2520,13 +2524,18 @@ function openEditor(create){
 function renderEditor(){
  $('pe-avatar').innerHTML=avatarSVG(ED,400,{card:true});renderLook();
  $('pe-pat').innerHTML=PATS.map(function(t){var locked=t[2]&&ED.owned.indexOf(t[2])<0;return '<button type="button" class="chipbtn'+(locked?' locked':'')+'" data-pat="'+t[0]+'" aria-pressed="'+(ED.kit.pattern===t[0])+'"'+(locked?' data-lock="1"':'')+'>'+(locked?'🔒 ':'')+t[1]+'</button>';}).join('');
- $('pe-sh').innerHTML=SHC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Şort '+c+'" aria-pressed="'+((ED.kit.sh||ED.kit.c2)===c)+'"></button>';}).join('');
+ var BOOTC=['#1E2328','#FFFFFF','#E30613','#2F6BFF','#F58220','#F5D90A','#00843D','#8A8F98'];
+ $('pe-so').innerHTML=KITC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Çorap '+c+'" aria-pressed="'+((ED.kit.so||ED.kit.c1)===c)+'"></button>';}).join('');
+ $('pe-bt').innerHTML=BOOTC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Krampon '+c+'" aria-pressed="'+((ED.kit.bt||'#1E2328')===c)+'"></button>';}).join('');
+ $('pe-sh').innerHTML=KITC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Şort '+c+'" aria-pressed="'+((ED.kit.sh||'#FFFFFF')===c)+'"></button>';}).join('');
  $('pe-skin').innerHTML=SKINC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Ten '+c+'" aria-pressed="'+((ED.kit.skin||SKINC[0])===c)+'"></button>';}).join('');
  ['c1','c2'].forEach(function(k){$('pe-'+k).innerHTML=KITC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Renk '+c+'" aria-pressed="'+(ED.kit[k]===c)+'"></button>';}).join('');});
 }
 $('pe-pat').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.lock){gtoast('Bu desen mağazada, jetonla açılıyor');return;}ED.kit.pattern=b.dataset.pat;renderEditor();});
 ['c1','c2'].forEach(function(k){$('pe-'+k).addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit[k]=b.dataset.c;renderEditor();});});
 $('pe-sh').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.sh=b.dataset.c;renderEditor();});
+$('pe-so').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.so=b.dataset.c;renderEditor();});
+$('pe-bt').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.bt=b.dataset.c;renderEditor();});
 $('pe-skin').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.skin=b.dataset.c;renderEditor();});
 $('pe-club').addEventListener('change',function(){ED.club=this.value;renderEditor();});
 var LOOKNAMES={shape:'Kafa şekli',hair:'Saç',hc:'Saç rengi',eyes:'Gözler',ec:'Göz rengi',brows:'Kaşlar',nose:'Burun',mouth:'Ağız',beard:'Sakal / bıyık',extra:'Yüz detayı'};
@@ -2693,7 +2702,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.25.0';
+var APP_VERSION='0.26.0';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2728,7 +2737,7 @@ $('pf-fb').onclick=fbOpen;
 window.addEventListener('error',function(e){var m=String(e.message||'hata').slice(0,200)+' @'+String(e.filename||'').split('/').pop()+':'+(e.lineno||0);FB.lastErr=m;if(FB.auto>=3||FB.seen[m])return;FB.seen[m]=1;FB.auto++;cloudFeedback(Object.assign({type:'otomatik',text:m},fbContext())).catch(function(){});});
 $('app-ver').textContent='v'+APP_VERSION;$('pf-ver').textContent='Sürüm '+APP_VERSION;
 
-loadProfile();migrate6();migrateBack();renderProfBtn();
+loadProfile();migrate6();migrateBack();migrate25();renderProfBtn();
 if(PROF){$('n1').value=PROF.name;$('on-name').value=PROF.name;}
 
 
