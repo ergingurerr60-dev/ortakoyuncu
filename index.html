@@ -282,6 +282,24 @@ body.online.emote-ok #emote-btn{display:flex}
 @keyframes avBall{0%,100%{transform:translateY(0) scale(1.08,.86)}12%{transform:translateY(-6px) scale(1)}50%{transform:translateY(-60px) scale(1)}88%{transform:translateY(-6px) scale(1)}}
 .sitem .dav-card{margin:0 auto}
 @media (prefers-reduced-motion:reduce){.av-live .av-sway,.av-live .av-ball{animation:none!important}}
+.cloudbox{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.cloudbox.ok{border-color:rgba(61,220,151,.45)}
+.cloudbox[hidden]{display:none}
+.cb-ic{font-size:26px;line-height:1}
+.cb-t{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;font-size:15px}
+.cb-t span{color:var(--muted);font-size:13px;line-height:1.35}
+.cb-btn{flex:1 0 100%;min-height:46px}
+.duel.with-av .side{justify-content:flex-end}
+.dv-av{display:flex;justify-content:center;margin-bottom:8px;animation:avPop .5s cubic-bezier(.3,1.5,.5,1) both}
+.rs-avs{display:flex;justify-content:center;align-items:flex-end;gap:26px}
+.rs-avs:empty{display:none}
+.rs-av{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:700;transition:filter .4s,transform .4s}
+.rs-av.cheer .dav-card{animation:avCheer .9s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(255,210,63,.55))}
+.rs-av.sad{filter:grayscale(.7) brightness(.72);transform:translateY(10px) scale(.9)}
+.rs-ball{position:absolute;top:-6px;right:-14px;font-style:normal;font-size:22px;animation:avBallUp 1s ease-in-out infinite}
+@keyframes avCheer{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-16px) rotate(-4deg)}50%{transform:translateY(0)}75%{transform:translateY(-11px) rotate(4deg)}}
+@keyframes avBallUp{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(180deg)}}
+@media (prefers-reduced-motion:reduce){.rs-av.cheer .dav-card,.rs-ball,.dv-av{animation:none!important}}
 .pe-prev{display:flex;justify-content:center;position:relative;padding:8px 22px;margin:0 auto;width:fit-content;border-radius:24px;background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .pe-prev svg{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
 .pe-tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
@@ -604,12 +622,13 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div class="pf-card"><div id="pf-avatar"></div><div class="pf-id"><h2 class="cond" id="pf-name"></h2><div class="pf-club" id="pf-club"></div><div class="pf-title" id="pf-title"></div><div class="lvl"><i id="pf-xpbar"></i></div><div class="small muted" id="pf-xptext"></div></div></div>
   <div class="row"><button class="ghost" id="pf-edit">Profili düzenle</button><button class="cta" id="pf-store">Mağaza</button></div>
   <button class="cta" id="pf-friends" type="button" style="background:linear-gradient(90deg,#22C55E,#0EA5E9);color:#fff">👥 Arkadaşlar</button>
+  <div class="cloudbox" id="pf-cloud" hidden></div>
   <h3 class="sec">İSTATİSTİKLER</h3><div class="stat-grid" id="pf-stats"></div>
   <h3 class="sec">ROZETLER</h3><div class="badges" id="pf-badges"></div>
   <h3 class="sec">SON MAÇLAR</h3><div class="hist" id="pf-hist"></div>
-  <button class="ghost" id="pf-fb" type="button">💬 Geri bildirim gönder</button>
+  <div class="row"><button class="ghost" id="pf-snd" type="button">🔊 Ses açık</button><button class="ghost" id="pf-fb" type="button">💬 Geri bildirim</button></div>
   <p class="small muted" id="pf-ver" style="margin:0;text-align:center"></p>
-  <p class="small muted" style="margin:4px 0 0">Profilin bu telefonda saklanır. Aynı telefonda oynarken istatistikler 1. oyuncuya (sarı) yazılır.</p>
+  
 </section>
 
 <section id="s-pedit" class="screen scrolly">
@@ -860,6 +879,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 <section id="s-result" class="screen" style="position:relative">
   <button class="back gexit corner" type="button">‹ Oyundan çık</button>
   <div class="muted" id="rs-round"></div>
+  <div class="rs-avs" id="rs-avs"></div>
   <h2 class="cond verdict" id="rs-verdict"></h2>
   <div id="rs-detail" style="font-size:17px;line-height:1.5"></div>
   <div class="scoreline" id="rs-score"></div>
@@ -1059,7 +1079,8 @@ function lockPick(){
 /* reveal */
 function duelHTML(big){
  var a=G.picks[0],b=G.picks[1],s=big?64:40;
- return '<div class="duel"><div class="side">'+crest(a,s)+'<div class="cn">'+esc(CLUBS[a].n)+'</div><div class="by">'+esc(G.names[0])+'</div></div><div class="vs">VS</div><div class="side">'+crest(b,s)+'<div class="cn">'+esc(CLUBS[b].n)+'</div><div class="by">'+esc(G.names[1])+'</div></div></div>';
+ var avs=big?duelAvs():null,AV=function(i){return avs?'<div class="dv-av">'+avatarSVG(avs[i],150,{card:true,mini:true})+'</div>':'';};
+ return '<div class="duel'+(avs?' with-av':'')+'"><div class="side">'+AV(0)+crest(a,s)+'<div class="cn">'+esc(CLUBS[a].n)+'</div><div class="by">'+esc(G.names[0])+'</div></div><div class="vs">VS</div><div class="side">'+AV(1)+crest(b,s)+'<div class="cn">'+esc(CLUBS[b].n)+'</div><div class="by">'+esc(G.names[1])+'</div></div></div>';
 }
 function reveal(){
  show('s-reveal');
@@ -1069,9 +1090,9 @@ function reveal(){
  stopTimer();
  TIMER=setInterval(function(){
   n--;
-  if(n>0){c.textContent=n;c.className='cond';void c.offsetWidth;c.className='cond pop';return;}
+  if(n>0){c.textContent=n;c.className='cond';void c.offsetWidth;c.className='cond pop';sfx('tick');return;}
   stopTimer();
-  c.style.display='none';
+  c.style.display='none';sfx('whistle');
   var same=G.picks[0]===G.picks[1];
   var valid=same?[]:common(G.picks[0],G.picks[1]);
   var html=duelHTML(true);
@@ -1202,13 +1223,13 @@ function endRound(winner,pl,given,viaDispute){
  if(winner!==null){G.score[winner]++;var sec=(30-R.left)+(12-R.ansLeft);if(!G.fast[winner]||sec<G.fast[winner].sec)G.fast[winner]={sec:sec,name:pl.name};if(winner===0&&pl&&!ON.active)profRound(sec*1000,pl.name);}
  $('rs-round').textContent='Tur '+G.round+' · '+CLUBS[G.picks[0]].n+' – '+CLUBS[G.picks[1]].n;
  if(winner!==null){
-  $('rs-verdict').textContent=G.names[winner].toLocaleUpperCase('tr-TR')+' ALDI!';
+  $('rs-verdict').textContent=G.names[winner].toLocaleUpperCase('tr-TR')+' ALDI!';sfx('goal');
   $('rs-detail').innerHTML='Doğru cevap: <b class="good">'+esc(pl.name)+'</b>'+(viaDispute?' <span class="small muted">(itirazla kabul edildi)</span>':'');
  }else{
-  $('rs-verdict').textContent='KİMSE BULAMADI';
+  $('rs-verdict').textContent='KİMSE BULAMADI';sfx('wrong');
   $('rs-detail').textContent='Bu tur puan yok.';
  }
- $('rs-score').textContent=scoreText();
+ $('rs-score').textContent=scoreText();rsAvs(winner);
  var others=G.valid.filter(function(x){return x!==pl;});
  $('rs-also').innerHTML=others.length?('<span class="small muted">'+(winner!==null?'Diğer doğru cevaplar':'Doğru cevaplar')+'</span><br>'+others.map(function(x){return esc(x.name);}).join(', ')):'<span class="small muted">Listemizde başka ortak oyuncu yok.</span>';
  var done=G.score[0]>=WIN||G.score[1]>=WIN;
@@ -1302,7 +1323,7 @@ $('s-final').addEventListener('click',function(e){
  if(e.target.closest('button'))return;
  var r=$('confetti').getBoundingClientRect();burst(e.clientX-r.left,e.clientY-r.top,40,Math.PI*2,8);
 });
-$('btn-sound').onclick=function(){FX.sound=!FX.sound;this.setAttribute('aria-pressed',FX.sound);this.setAttribute('aria-label',FX.sound?'Sesi kapat':'Sesi aç');$('snd-wave').style.display=FX.sound?'':'none';};
+
 function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},1800);}
 $('btn-share').onclick=function(){
  var w=G.score[0]>G.score[1]?0:1;
@@ -1344,7 +1365,7 @@ function oEnter(seat,code){
   return api.join('oo-'+code).then(function(room){
    emReset();document.body.classList.add('online');
    ON.active=true;ON.room=room;ON.seat=seat;ON.code=code;ON.me={};ON.seen={};ON.key='';ON.lockedKey='';ON.ansK=null;ON.lastSeq=-1;ON.guest=null;ON.st=null;
-   setMe({v:1,seat:seat,name:nm});
+   ON.avs=[null,null];ON.avs[seat]=avCard();setMe({v:1,seat:seat,name:nm,av:avCard()});
    room.onPeers(onPeers,function(e){banner('Bağlantı koptu'+(e&&e.code?' ('+e.code+')':'')+'. Odadan çıkıp tekrar dene.');});
    try{room.onConnection(function(){diag();},function(e){banner('Oda bağlantısı kurulamadı'+(e&&e.code?' ('+e.code+')':'')+'.');});}catch(e){}
    setInterval(diag,2000);
@@ -1371,6 +1392,7 @@ function diag(){var d=$('on-diag');if(!d)return;if(!ON.active||!ON.room){d.textC
 function onPeers(ch){
  if(!ON.active)return;
  var peers=ch.peers;diag();
+ peers.forEach(function(p){var pr=p.presence||{},s2=pr.seat;if((s2===0||s2===1)&&pr.av&&ON.avs)ON.avs[s2]=pr.av;});
  peers.forEach(function(p){var s=p.presence&&p.presence.seat;if(!p.sameTab&&(s===0||s===1)&&s!==ON.seat)emIn(p);});
  if(ON.seat===0){
   var g=null;peers.forEach(function(p){if(!p.sameTab&&p.presence&&p.presence.seat===1&&!g)g=p;});
@@ -1585,6 +1607,7 @@ function oResult(st){
  $('rs-round').textContent='Tur '+st.r+' · '+CLUBS[st.pk[0]].n+' – '+CLUBS[st.pk[1]].n;
  if(r.p!==null&&r.p!==undefined){$('rs-verdict').textContent=G.names[r.p].toLocaleUpperCase('tr-TR')+' ALDI!';}
  else{$('rs-verdict').textContent='KİMSE BULAMADI';}
+ var sk=st.m+'|'+st.r;if(ON.sfxK!==sk){ON.sfxK=sk;sfx(r.p===ON.seat?'goal':(r.p!==null&&r.p!==undefined?'oof':'wrong'));}rsAvs(r.p===null||r.p===undefined?null:r.p);
  var lines=[0,1].map(function(p){var s=st.subs&&st.subs[p];var t;
   if(!s)t='<span class="muted">cevap yok</span>';
   else if(s.pass)t='<span class="muted">pas / süre doldu</span>';
@@ -1612,8 +1635,8 @@ function oReveal(st){
  var c=$('rv-count'),d=$('rv-duel');d.style.display='none';c.style.display='block';
  var n=3;c.textContent=n;c.className='cond pop';stopTimer();
  TIMER=setInterval(function(){
-  n--;if(n>0){c.textContent=n;c.className='cond';void c.offsetWidth;c.className='cond pop';return;}
-  stopTimer();c.style.display='none';
+  n--;if(n>0){c.textContent=n;c.className='cond';void c.offsetWidth;c.className='cond pop';sfx('tick');return;}
+  stopTimer();c.style.display='none';if(!st.bad)sfx('whistle');
   var html=duelHTML(true);
   if(st.bad==='same')html+='<p style="font-size:18px">İkiniz de aynı kulübü seçtiniz. Yeniden seçiyorsunuz…</p>';
   else if(st.bad==='none')html+='<p style="font-size:18px">Bu iki kulüpte oynamış bir futbolcu listemizde yok. Yeniden seçiyorsunuz…</p>';
@@ -2406,6 +2429,83 @@ function migrateBack(){if(!PROF||!PROF.mig7||PROF.back23)return;
  if(back){PROF.coins+=back;setTimeout(function(){gtoast('Karakter önceki haline döndü · '+back+' jeton iade edildi');},1200);}
  PROF.back23=1;saveProfile();}
 
+/* ---------- sound effects (synthesised, no files) ---------- */
+try{if(localStorage.getItem('oo-snd')==='0')FX.sound=false;}catch(e){}
+function acx(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC;}catch(e){return null;}}
+(function(){var u=function(){acx();document.removeEventListener('touchstart',u);document.removeEventListener('click',u);};document.addEventListener('touchstart',u,{passive:true});document.addEventListener('click',u);})();
+function sfx(name){
+ if(!FX.sound)return;var A=acx();if(!A)return;var t=A.currentTime+.02;
+ var tn=function(type,f0,f1,st,dur,vol){var o=A.createOscillator(),g=A.createGain();o.type=type;o.frequency.setValueAtTime(f0,t+st);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+st+dur);
+  g.gain.setValueAtTime(0,t+st);g.gain.linearRampToValueAtTime(vol,t+st+.012);g.gain.exponentialRampToValueAtTime(.0008,t+st+dur);o.connect(g).connect(A.destination);o.start(t+st);o.stop(t+st+dur+.05);};
+ var nz=function(st,dur,vol,freq,q,att){var len=Math.max(1,Math.floor(A.sampleRate*dur)),buf=A.createBuffer(1,len,A.sampleRate),d=buf.getChannelData(0);for(var i=0;i<len;i++)d[i]=Math.random()*2-1;
+  var s=A.createBufferSource();s.buffer=buf;var f=A.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;f.Q.value=q;var g=A.createGain();
+  g.gain.setValueAtTime(0,t+st);g.gain.linearRampToValueAtTime(vol,t+st+(att||.04));g.gain.linearRampToValueAtTime(0,t+st+dur);s.connect(f).connect(g).connect(A.destination);s.start(t+st);};
+ try{
+  if(name==='tick')tn('square',1250,0,0,.05,.045);
+  else if(name==='whistle'){[[0,.16],[.24,.46]].forEach(function(w){var o=A.createOscillator(),l=A.createOscillator(),lg=A.createGain(),g=A.createGain();o.type='sine';o.frequency.value=2900;l.frequency.value=38;lg.gain.value=170;l.connect(lg).connect(o.frequency);
+   g.gain.setValueAtTime(0,t+w[0]);g.gain.linearRampToValueAtTime(.15,t+w[0]+.02);g.gain.setValueAtTime(.15,t+w[0]+w[1]-.03);g.gain.linearRampToValueAtTime(0,t+w[0]+w[1]);o.connect(g).connect(A.destination);o.start(t+w[0]);l.start(t+w[0]);o.stop(t+w[0]+w[1]+.05);l.stop(t+w[0]+w[1]+.05);});}
+  else if(name==='goal'){tn('sine',95,42,0,.28,.55);nz(.04,1.7,.2,850,.55,.3);nz(.04,.25,.12,3000,1.5,.01);tn('triangle',784,0,.08,.2,.11);tn('triangle',1046.5,0,.22,.4,.11);tn('triangle',1318.5,0,.36,.5,.09);}
+  else if(name==='ding'){tn('sine',880,0,0,.14,.13);tn('sine',1318.5,0,.09,.26,.13);}
+  else if(name==='wrong'){tn('square',190,120,0,.17,.07);tn('square',150,95,.19,.26,.07);}
+  else if(name==='oof'){tn('triangle',430,170,0,.55,.13);nz(0,.7,.07,480,.8,.08);}
+ }catch(e){}
+}
+function sndSync(){var b=$('btn-sound');if(b){b.setAttribute('aria-pressed',FX.sound);b.setAttribute('aria-label',FX.sound?'Sesi kapat':'Sesi aç');var w=$('snd-wave');if(w)w.style.display=FX.sound?'':'none';}
+ var p=$('pf-snd');if(p)p.textContent=FX.sound?'🔊 Ses açık':'🔇 Ses kapalı';try{localStorage.setItem('oo-snd',FX.sound?'1':'0');}catch(e){}}
+$('btn-sound').onclick=function(){FX.sound=!FX.sound;sndSync();};
+/* ---------- the two players' characters in a match ---------- */
+function avCard(){return PROF?{name:PROF.name,club:PROF.club,kit:PROF.kit,eq:PROF.eq,look:PROF.look}:null;}
+function hashStr(s){var h=2166136261;s=String(s||'');for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function genAv(name,club,seed){var h=hashStr(name+'|'+(seed||'')),pick=function(a,k){return a[(h>>>k)%a.length];};
+ var free=function(part){return LOOKOPT[part].filter(function(o){return !o[2];});};
+ var cc=CLUBS[club]?CLUBS[club].c:['#888888','#FFFFFF'];
+ return {name:name,club:club,kit:{pattern:pick(['solid','stripes','halves'],3),c1:cc[0],c2:cc[1]===cc[0]?'#FFFFFF':cc[1],num:String(1+(h%23)),sh:cc[0],so:cc[0],skin:pick(SKINC,5)},eq:{acc:[],frame:null},
+  look:{hair:pick(free('hair'),7)[0],hc:pick(free('hc'),11)[0],beard:'yok',eyes:'default',brows:'defaultNatural',mouth:'smile'}};}
+function duelAvs(){
+ if(!G.names||!G.names[0]||!G.names[1]||!G.picks||!G.picks[0]||!G.picks[1])return null;
+ if(ON.active){var a=ON.avs||[];return [a[0]||genAv(G.names[0],G.picks[0]),a[1]||genAv(G.names[1],G.picks[1])];}
+ if(!G.cpuSeed)G.cpuSeed=String(Date.now());
+ return [avCard()||genAv(G.names[0],G.picks[0]),genAv(G.names[1],G.picks[1],G.cpuSeed)];}
+function rsAvs(w){var b=$('rs-avs');if(!b)return;var avs=duelAvs();if(!avs){b.innerHTML='';return;}
+ b.innerHTML=[0,1].map(function(i){var cls=w===null||w===undefined?'sad':(i===w?'cheer':'sad');
+  return '<div class="rs-av '+cls+'">'+avatarSVG(avs[i],170,{card:true,mini:true})+'<span>'+esc(G.names[i])+'</span>'+(cls==='cheer'?'<i class="rs-ball">⚽</i>':'')+'</div>';}).join('');}
+/* ---------- cloud save (Google) ---------- */
+var CLOUDK='oo-linked',CLOUD={t:null,last:''};
+function cloudLinked(){try{return localStorage.getItem(CLOUDK)||'';}catch(e){return '';}}
+function renderCloudBox(){var b=$('pf-cloud');if(!b)return;if(!cloud()){b.hidden=true;return;}b.hidden=false;var em=cloudLinked();
+ b.className='cloudbox'+(em?' ok':'');
+ b.innerHTML=em?'<div class="cb-ic">☁️</div><div class="cb-t"><b>Profilin yedekleniyor</b><span>'+esc(em)+(CLOUD.last?' · son yedek '+CLOUD.last:'')+'</span><span>Başka telefondan aynı Google hesabıyla girersen profilin gelir.</span></div>'
+  :'<div class="cb-ic">⚠️</div><div class="cb-t"><b>Profilin sadece bu telefonda</b><span>Telefon değişirse ya da veriler silinirse jetonların ve eşyaların gider.</span></div><button class="cta cb-btn" id="cb-link" type="button">Google ile yedekle</button>';
+ var l=$('cb-link');if(l)l.onclick=cloudLink;}
+function cloudSaveSoon(){if(!cloudLinked()||!cloud())return;clearTimeout(CLOUD.t);CLOUD.t=setTimeout(cloudSave,2500);}
+function cloudSave(){var c=cloud();if(!c||!PROF)return Promise.resolve();
+ return c.ready().then(function(x){var u=firebase.auth().currentUser;if(!u||u.isAnonymous)return;var data={p:JSON.stringify(PROF),t:x.TS,v:APP_VERSION,n:PROF.name||''};
+  return x.db.ref('saves/'+u.uid).set(data).catch(function(){return x.db.ref('profiles/'+u.uid+'/save').set(data);}).then(function(){var d=new Date();CLOUD.last=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);if($('s-profile').classList.contains('on'))renderCloudBox();});
+ }).catch(function(e){try{console.warn('cloud save',e);}catch(_){}});}
+function cloudFetch(x,uid){var rd=function(p){return x.db.ref(p).once('value').then(function(s){return s.val();},function(){return null;});};return rd('saves/'+uid).then(function(v){return v||rd('profiles/'+uid+'/save');});}
+function cloudApply(rp,msg){PROF=rp;saveProfile(true);renderProfBtn();if($('s-profile').classList.contains('on'))renderProfile();gtoast(msg);}
+function cloudAfterLink(x,switched){var u=firebase.auth().currentUser;try{localStorage.setItem(CLOUDK,(u&&u.email)||'Google hesabı');localStorage.removeItem('oo-linking');}catch(e){}
+ return cloudFetch(x,u.uid).then(function(v){var rp=null;try{rp=v&&v.p?JSON.parse(v.p):null;}catch(e){}
+  if(rp&&rp.v===1&&(switched||(rp.savedAt||0)>((PROF&&PROF.savedAt)||0))){
+   if(!PROF||confirm('Bu Google hesabında kayıtlı bir profil var: '+(rp.name||'Oyuncu')+' · Seviye '+lvlOf(rp.xp||0)+'. Bu telefondaki profilin yerine yüklensin mi?')){cloudApply(rp,'Profilin buluttan yüklendi ☁️');return;}}
+  return cloudSave().then(function(){gtoast('Profilin Google hesabına yedeklendi ☁️');renderCloudBox();});});}
+function cloudLink(){var c=cloud();if(!c){gtoast('Bulut bağlantısı yok');return;}var btn=$('cb-link');if(btn){btn.disabled=true;btn.textContent='Bağlanıyor…';}
+ c.ready().then(function(x){var a=firebase.auth(),pr=new firebase.auth.GoogleAuthProvider();pr.setCustomParameters({prompt:'select_account'});var u=a.currentUser,anon=u&&u.isAnonymous;
+  return (anon?u.linkWithPopup(pr):a.signInWithPopup(pr)).then(function(){return cloudAfterLink(x,false);},function(e){var code=(e&&e.code)||'';
+   if((code==='auth/credential-already-in-use'||code==='auth/email-already-in-use')&&e.credential)return a.signInWithCredential(e.credential).then(function(){return cloudAfterLink(x,true);});
+   if(code==='auth/popup-blocked'||code==='auth/operation-not-supported-in-this-environment'||code==='auth/web-storage-unsupported'){try{localStorage.setItem('oo-linking','1');}catch(_){}return anon?u.linkWithRedirect(pr):a.signInWithRedirect(pr);}
+   if(code==='auth/popup-closed-by-user'||code==='auth/cancelled-popup-request')return;
+   throw e;});
+ }).catch(function(e){gtoast('Bağlanamadı: '+((e&&e.code)||e));}).then(function(){renderCloudBox();});}
+function cloudBoot(){var c=cloud();if(!c)return;var linking=false;try{linking=!!localStorage.getItem('oo-linking');}catch(e){}if(!cloudLinked()&&!linking)return;
+ c.ready().then(function(x){var a=firebase.auth();
+  var first=linking?a.getRedirectResult().then(function(r){if(r&&r.user)return cloudAfterLink(x,false);try{localStorage.removeItem('oo-linking');}catch(_){}},function(e){try{localStorage.removeItem('oo-linking');}catch(_){}if(e&&e.credential&&(e.code==='auth/credential-already-in-use'||e.code==='auth/email-already-in-use'))return a.signInWithCredential(e.credential).then(function(){return cloudAfterLink(x,true);});}):Promise.resolve();
+  return first.then(function(){var u=a.currentUser;if(!u||u.isAnonymous||!cloudLinked())return;
+   return cloudFetch(x,u.uid).then(function(v){var rp=null;try{rp=v&&v.p?JSON.parse(v.p):null;}catch(e){}
+    if(rp&&rp.v===1&&(rp.savedAt||0)>((PROF&&PROF.savedAt)||0)+1000)cloudApply(rp,'Profilin buluttan güncellendi ☁️');
+    else if(PROF&&(!rp||(PROF.savedAt||0)>(rp.savedAt||0)))cloudSave();});});
+ }).catch(function(){});}
+
 var KITC=['#E30613','#A90432','#F58220','#F5D90A','#FFFFFF','#111111','#0A1F5C','#2F6BFF','#6CACE4','#00843D','#5B2C83','#8E1F2F'];
 var PATS=[['solid','Düz',0],['stripes','Dikey çizgili',0],['halves','İkiye bölünmüş',0],['hoops','Yatay çizgili','pat_hoops'],['sash','Çapraz şerit','pat_sash']];
 var STORE_old=[
@@ -2432,7 +2532,7 @@ function loadProfile(){try{var s=localStorage.getItem(PKEY);if(s){var p=JSON.par
  /* a favourite club that left our leagues (relegated) is cleared; the player just picks a new one */
  if(PROF&&PROF.club&&!CLUBS[PROF.club]){PROF.oldClub=PROF.club;PROF.club='';}}
 var saveWarned=false;
-function saveProfile(){if(!PROF)return;try{localStorage.setItem(PKEY,JSON.stringify(PROF));}catch(e){if(!saveWarned){saveWarned=true;gtoast('Profil bu tarayıcıda kaydedilemedi');}}}
+function saveProfile(fromCloud){if(!PROF)return;if(!fromCloud)PROF.savedAt=Date.now();if(!fromCloud&&typeof cloudSaveSoon==='function')cloudSaveSoon();try{localStorage.setItem(PKEY,JSON.stringify(PROF));}catch(e){if(!saveWarned){saveWarned=true;gtoast('Profil bu tarayıcıda kaydedilemedi');}}}
 function gtoast(msg){var t=$('gtoast');t.textContent=msg;t.classList.add('on');clearTimeout(gtoast.t);gtoast.t=setTimeout(function(){t.classList.remove('on');},2800);}
 function lvlOf(xp){var L=1;while(xp>=50*L*(L+1))L++;return L;}
 function titleOf(L){return L<3?'AMATÖR':L<6?'YARI PROFESYONEL':L<10?'PROFESYONEL':L<15?'YILDIZ':'EFSANE';}
@@ -2466,7 +2566,7 @@ function avatarSVG_old(p,size,ov){
 function badgeSVG(i){var hue=['#F5D90A','#2F6BFF','#FF9100','#E30613','#5B2C83','#A90432','#00843D','#36C5D0'][i%8];
  return '<svg viewBox="0 0 34 34" aria-hidden="true"><path d="M10 2 L17 10 L24 2 L28 2 L20 13 L14 13 L6 2 Z" fill="'+hue+'" opacity=".8"/><circle cx="17" cy="21" r="11" fill="url(#bdg)" stroke="#9A6A00" stroke-width="1.2"/><circle cx="17" cy="21" r="7" fill="'+hue+'"/><polygon points="17,16.5 18.4,19.6 21.6,19.9 19.2,22 19.9,25.2 17,23.5 14.1,25.2 14.8,22 12.4,19.9 15.6,19.6" fill="#fff"/><defs><linearGradient id="bdg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1A8"/><stop offset="1" stop-color="#D9A400"/></linearGradient></defs></svg>';}
 function grantBadges(){var got=[];BADGES.forEach(function(b){if(PROF.badges.indexOf(b[0])<0&&b[3](PROF)){PROF.badges.push(b[0]);got.push(b[1]);}});return got;}
-function profRound(ms,name){
+function profRound(ms,name){if(!$('s-result').classList.contains('on'))sfx('ding');
  if(!PROF)return;var s=PROF.st;s.correct++;PROF.coins+=10;PROF.xp+=20;
  if(ms>=0&&(!s.fastName||ms<s.fastMs)){s.fastMs=Math.round(ms);s.fastName=name;}
  (G.picks||[]).forEach(function(c){if(c){s.clubs[c]=(s.clubs[c]||0)+1;}});
@@ -2496,11 +2596,12 @@ $('btn-prof').onclick=function(e){e.stopPropagation();openProfile('s-intro');};
 $('pchip').onclick=function(){openProfile('s-start');};
 $('pf-back').onclick=function(){setMode(PF.prevMode||'solo');show(PF.back);if(PF.back==='s-intro')renderProfBtn();};
 $('pf-edit').onclick=function(){openEditor(false);};
+$('pf-snd').onclick=function(){FX.sound=!FX.sound;sndSync();if(FX.sound)sfx('ding');};
 $('pf-store').onclick=function(){renderStore();show('s-store');};
 $('st-back').onclick=function(){renderProfile();show('s-profile');};
 function renderProfile(){
  var p=PROF,L=lvlOf(p.xp),cur=50*(L-1)*L,nxt=50*L*(L+1),s=p.st;
- $('pf-avatar').innerHTML=avatarSVG(p,230,{card:true});$('pf-name').textContent=p.name;$('pf-coins').textContent=p.coins;
+ $('pf-avatar').innerHTML=avatarSVG(p,230,{card:true});renderCloudBox();sndSync();$('pf-name').textContent=p.name;$('pf-coins').textContent=p.coins;
  $('pf-club').innerHTML=CLUBS[p.club]?crest(p.club,16)+'<span>'+esc(CLUBS[p.club].n)+'</span>':'';
  $('pf-title').textContent='SEVİYE '+L+' · '+titleOf(L);
  $('pf-xpbar').style.width=Math.min(100,(p.xp-cur)/(nxt-cur)*100)+'%';$('pf-xptext').textContent=(p.xp-cur)+' / '+(nxt-cur)+' XP';
@@ -2702,7 +2803,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.26.0';
+var APP_VERSION='0.27.0';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2737,7 +2838,7 @@ $('pf-fb').onclick=fbOpen;
 window.addEventListener('error',function(e){var m=String(e.message||'hata').slice(0,200)+' @'+String(e.filename||'').split('/').pop()+':'+(e.lineno||0);FB.lastErr=m;if(FB.auto>=3||FB.seen[m])return;FB.seen[m]=1;FB.auto++;cloudFeedback(Object.assign({type:'otomatik',text:m},fbContext())).catch(function(){});});
 $('app-ver').textContent='v'+APP_VERSION;$('pf-ver').textContent='Sürüm '+APP_VERSION;
 
-loadProfile();migrate6();migrateBack();migrate25();renderProfBtn();
+loadProfile();migrate6();migrateBack();migrate25();renderProfBtn();sndSync();cloudBoot();
 if(PROF){$('n1').value=PROF.name;$('on-name').value=PROF.name;}
 
 
@@ -2923,7 +3024,7 @@ function pResult(st){
  var mine=st.res.filter(function(x){return x.id===PT.pid;})[0],rk=st.m+'|'+st.r;
  if(mine&&mine.a&&PT.roundKey!==rk){PT.roundKey=rk;profRound(mine.ms,mine.a);}
  $('rs-round').textContent='Soru '+st.r+'/'+st.cfg.rounds+' · '+CLUBS[st.pk[0]].n+' – '+CLUBS[st.pk[1]].n;
- $('rs-verdict').textContent=mine&&mine.a?'DOĞRU! +'+mine.pts:(st.res.some(function(x){return x.a;})?'BU SEFER OLMADI':'KİMSE BULAMADI');
+ $('rs-avs').innerHTML='';if(PT.sfxK!==st.r){PT.sfxK=st.r;sfx(mine&&mine.a?'goal':'wrong');}$('rs-verdict').textContent=mine&&mine.a?'DOĞRU! +'+mine.pts:(st.res.some(function(x){return x.a;})?'BU SEFER OLMADI':'KİMSE BULAMADI');
  $('rs-detail').innerHTML='<div class="hist">'+st.res.map(function(x){var i=st.players.map(function(p){return p.id;}).indexOf(x.id),p=st.players[i];
   return '<div class="prow'+(x.id===PT.pid?' me':'')+'">'+pAv(p,i)+'<span class="nm">'+esc(p.n)+'<br><span class="sub">'+(x.a?'✓ '+esc(x.a)+' · '+fmtMs(x.ms)+(x.first?' · ⚡ ilk bilen':''):'—')+'</span></span><span class="pt" style="color:'+(x.pts?'var(--good)':'var(--muted)')+'">+'+x.pts+'</span></div>';}).join('')+'</div>';
  var stn=pStandings(st);
@@ -3039,7 +3140,7 @@ bindAnswer('xo-in','xo-sugg',function(name){var st=PT.st;if(!st||st.ph!=='xo'||s
 function ppxoResult(st){
  var r=st.res,me=PT.pid,isPP=r.type==='pp';
  $('rs-round').textContent=isPP?'Pinpon · Tur '+st.r+'/'+st.cfg.rounds+' · '+CLUBS[st.pk[0]].n+' – '+CLUBS[st.pk[1]].n:'XOX · Tahta '+st.r+' / 3';
- $('rs-verdict').textContent=r.win?(r.win===me?'TURU ALDIN!':(pName(st,r.win)+' ALDI').toLocaleUpperCase('tr-TR')):'BERABERE';
+ $('rs-avs').innerHTML='';$('rs-verdict').textContent=r.win?(r.win===me?'TURU ALDIN!':(pName(st,r.win)+' ALDI').toLocaleUpperCase('tr-TR')):'BERABERE';
  if(isPP){$('rs-detail').innerHTML=esc(r.lose===me?'Süren doldu.':pName(st,r.lose)+' süresinde bulamadı.')+'<div class="chips" style="margin-top:8px">'+st.pp.used.map(function(u){return '<span class="uchip" style="background:'+pColor(st,u.by)+'">'+esc(u.n)+'</span>';}).join('')+'</div>';
   var rest=common(st.pk[0],st.pk[1]).filter(function(x){return !st.pp.used.some(function(u){return u.n===x.name;});}).sort(function(a,b){return b.fame-a.fame;});
   $('rs-also').innerHTML=rest.length?'<span class="small muted">Söylenmeyen '+rest.length+' isim vardı, mesela</span><br>'+rest.slice(0,8).map(function(x){return esc(x.name);}).join(', '):'<span class="small muted">Bütün ortak oyuncular söylendi!</span>';}
@@ -3129,7 +3230,7 @@ function bindAnswer(inId,sugId,onPick){
  sg.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;onPick(b.dataset.name);if(!inp.disabled&&!inp.hidden)focusIn(inId);});
 }
 function clearAns(inId,sugId){$(inId).value='';$(sugId).innerHTML='';}
-function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');if(navigator.vibrate){try{navigator.vibrate(100);}catch(e){}}}
+function shake(el){sfx('wrong');el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');if(navigator.vibrate){try{navigator.vibrate(100);}catch(e){}}}
 function clubTag(id,s){return crest(id,s||22)+'<span>'+esc(CLUBS[id].n)+'</span>';}
 /* ---------- mode hub ---------- */
 var MODES=[
@@ -3510,12 +3611,12 @@ function soloStart(){
  SOLO.preset=null;SOLO.daily=false;SOLO.marks=null;
  try{localStorage.setItem('oo-solo-cfg',JSON.stringify({d:SOLO.diff,r:SOLO.rounds,t:SOLO.time}));}catch(e){}
  SOLO.active=true;SOLO.r=0;SOLO.score=0;SOLO.correct=0;SOLO.fastMs=0;SOLO.fastName='';SOLO.used={};SOLO.limit=(SOLO.time||DIFF[SOLO.diff].t/1000)*1000;
- G.names=[PROF?PROF.name:'Sen','Rastgele'];G.score=[0,0];
+ G.names=[PROF?PROF.name:'Sen','Rastgele'];G.cpuSeed=String(Date.now());G.score=[0,0];
  soloNext();
 }
 function soloNext(){
  SOLO.r++;SOLO.pk=[null,null];
- if(SOLO.preset){var pp=SOLO.preset[SOLO.r-1];SOLO.pk=pp.slice();G.picks=pp.slice();show('s-reveal');var c0=$('rv-count'),d0=$('rv-duel');c0.style.display='none';d0.innerHTML=duelHTML(true)+'<p class="muted" style="margin:0;font-size:16px">Günün meydan okuması · '+SOLO.r+' / '+SOLO.rounds+'</p>';d0.style.display='flex';d0.className='pop';setTimeout(soloRace,1600);return;}
+ if(SOLO.preset){var pp=SOLO.preset[SOLO.r-1];SOLO.pk=pp.slice();G.picks=pp.slice();show('s-reveal');sfx('whistle');var c0=$('rv-count'),d0=$('rv-duel');c0.style.display='none';d0.innerHTML=duelHTML(true)+'<p class="muted" style="margin:0;font-size:16px">Günün meydan okuması · '+SOLO.r+' / '+SOLO.rounds+'</p>';d0.style.display='flex';d0.className='pop';setTimeout(soloRace,1600);return;}
  PK={league:null,sel:null,q:''};$('pk-search').value='';
  $('pk-round').textContent='Tur '+SOLO.r+' / '+SOLO.rounds+' · '+DIFF[SOLO.diff].n;
  $('pk-score').textContent=SOLO.score+' puan';
@@ -3542,7 +3643,7 @@ function soloLocked(mine){
  SOLO.used[mine+'|'+rv]=1;SOLO.pk=[mine,rv];G.picks=[mine,rv];
  show('s-reveal');
  var c=$('rv-count'),d=$('rv-duel');c.style.display='none';
- d.innerHTML=duelHTML(true);d.style.display='flex';d.className='';
+ d.innerHTML=duelHTML(true);d.style.display='flex';d.className='';sfx('whistle');
  var sides=d.querySelectorAll('.side');if(sides[1])sides[1].classList.add('flipin');
  setTimeout(soloRace,1500);
 }
@@ -3571,7 +3672,7 @@ function soloResult(pl,ms,pts){
  if(SOLO.marks)SOLO.marks.push(pl?(ms<10000?'🟩':'🟨'):'🟥');
  if(pl){SOLO.score+=pts;SOLO.correct++;if(!SOLO.fastName||ms<SOLO.fastMs){SOLO.fastMs=ms;SOLO.fastName=pl.name;}profRound(ms,pl.name);}
  $('rs-round').textContent='Tur '+SOLO.r+'/'+SOLO.rounds+' · '+CLUBS[SOLO.pk[0]].n+' – '+CLUBS[SOLO.pk[1]].n;
- $('rs-verdict').innerHTML=pl?'DOĞRU! <span class="pts">+'+pts+'</span>':'SÜRE DOLDU';
+ $('rs-verdict').innerHTML=pl?'DOĞRU! <span class="pts">+'+pts+'</span>':'SÜRE DOLDU';sfx(pl?'goal':'wrong');rsAvs(pl?0:1);
  $('rs-detail').innerHTML=pl?'Cevabın: <b class="good">'+esc(pl.name)+'</b> · '+fmtMs(ms):'Bu turu bulamadın.';
  $('rs-score').textContent=SOLO.score+' puan · '+SOLO.correct+' doğru';
  var valid=common(SOLO.pk[0],SOLO.pk[1]).filter(function(x){return !pl||x!==pl;}).sort(function(a,b){return b.fame-a.fame;});
@@ -3713,7 +3814,7 @@ startIntro();
  function init(){
   if(ready)return ready;
   ready=load(BASE+'firebase-app-compat.js').then(function(){return Promise.all([load(BASE+'firebase-auth-compat.js'),load(BASE+'firebase-database-compat.js')]);})
-   .then(function(){if(!firebase.apps.length)firebase.initializeApp(CFG);var a=firebase.auth();return a.currentUser?a.currentUser:a.signInAnonymously().then(function(r){return r.user;});})
+   .then(function(){if(!firebase.apps.length)firebase.initializeApp(CFG);var a=firebase.auth();return new Promise(function(res){var un=a.onAuthStateChanged(function(u){un();res(u);});}).then(function(u){return u||a.signInAnonymously().then(function(r){return r.user;});});})
    .then(function(){return firebase.database();})
    .catch(function(e){ready=null;throw e;});
   return ready;
