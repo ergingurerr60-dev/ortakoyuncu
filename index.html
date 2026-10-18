@@ -515,7 +515,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <h1 class="cond logo" style="font-size:56px;margin:8px 0 0">TEK<br>KİŞİLİK</h1>
   <p class="muted" style="margin:0;font-size:16px">Sen bir kulüp seç, ikinci kulübü ben getireyim. İkisinde de oynamış futbolcuyu bul.</p>
   <input id="n1" type="hidden"><input id="n2" type="hidden">
-  <div class="field"><span class="small muted">Zorluk</span><div class="seg" id="sd-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b><small>Ara sıra maç izleyen</small></button><button type="button" class="segb" data-d="orta"><b>ORTA</b><small>Maçkolik takipçisi</small></button><button type="button" class="segb" data-d="zor"><b>ZOR</b><small>Futbol ansiklopedisi</small></button></div></div>
+  <div class="field"><span class="small muted">Zorluk</span><div class="seg" id="sd-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b></button><button type="button" class="segb" data-d="orta"><b>ORTA</b></button><button type="button" class="segb" data-d="zor"><b>ZOR</b></button></div></div>
   <div class="field"><span class="small muted">Tur sayısı (1-50)</span><div class="stepper" id="sd-rstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="tur"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">tur</span><span class="quick"><button type="button" data-q="5">5</button><button type="button" data-q="10">10</button><button type="button" data-q="15">15</button></span></div></div>
   <div class="field"><span class="small muted">Her soru için süre (5-120 sn)</span><div class="stepper" id="sd-tstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="sn"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">sn</span><span class="quick"><button type="button" data-q="20">20</button><button type="button" data-q="30">30</button><button type="button" data-q="45">45</button></span></div></div>
   <div class="rules" id="sd-info"></div>
@@ -583,6 +583,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div id="fb-msg" class="small" style="min-height:18px"></div>
   <button class="cta" id="fb-send" type="button">Gönder</button>
 </div></div>
+<div id="dpm" class="fv" role="dialog" aria-modal="true" aria-labelledby="dp-title" hidden><div class="fv-box" style="display:flex;flex-direction:column;gap:14px"><button id="dp-x" type="button" aria-label="Kapat" style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:18px">✕</button><b class="cond" id="dp-title" style="font-size:30px;line-height:1"></b><span class="small" style="color:rgba(244,246,250,.7)">Zorluk seç</span><div class="seg" id="dp-seg"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b></button><button type="button" class="segb" data-d="orta"><b>ORTA</b></button><button type="button" class="segb" data-d="zor"><b>ZOR</b></button></div></div></div>
 <div id="fv" class="fv" role="dialog" aria-modal="true" aria-label="Arkadaş profili" hidden><div class="fv-box"><button id="fv-x" type="button" aria-label="Kapat" style="position:absolute;top:12px;right:12px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:18px">✕</button><div id="fv-body"></div></div></div>
 
 <section id="s-store" class="screen scrolly">
@@ -601,7 +602,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <h3 class="sec">AYARLAR <span id="pl-who" class="small muted" style="font-family:Barlow,sans-serif;letter-spacing:0"></span></h3>
   <div id="pl-cfg" style="display:flex;flex-direction:column;gap:12px">
   <div class="field"><span class="small muted">Oyun modu</span><div class="seg" id="pl-mode"><button type="button" class="segb" data-g="klasik"><b>KLASİK</b><small>2-8 kişi</small></button><button type="button" class="segb" data-g="pinpon"><b>PİNPON</b><small>2 kişi</small></button><button type="button" class="segb" data-g="xox"><b>XOX</b><small>2 kişi</small></button></div><span class="small muted" id="pl-mdesc"></span></div>
-  <div class="field"><span class="small muted">Zorluk</span><div class="seg" id="pl-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b><small>Ara sıra maç izleyen</small></button><button type="button" class="segb" data-d="orta"><b>ORTA</b><small>Maçkolik takipçisi</small></button><button type="button" class="segb" data-d="zor"><b>ZOR</b><small>Futbol ansiklopedisi</small></button></div></div>
+  <div class="field"><span class="small muted">Zorluk</span><div class="seg" id="pl-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b></button><button type="button" class="segb" data-d="orta"><b>ORTA</b></button><button type="button" class="segb" data-d="zor"><b>ZOR</b></button></div></div>
   <div class="field" id="pl-rf"><span class="small muted" id="pl-rl">Soru sayısı</span><div class="stepper" id="pl-rstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="soru"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">soru</span><span class="quick"><button type="button" data-q="5">5</button><button type="button" data-q="10">10</button><button type="button" data-q="15">15</button></span></div></div>
   <div class="field"><span class="small muted" id="pl-tl">Her soru için süre</span><div class="stepper" id="pl-tstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="sn"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">sn</span><span class="quick"><button type="button" data-q="10">10</button><button type="button" data-q="20">20</button><button type="button" data-q="30">30</button></span></div></div>
   <div class="field"><span class="small muted">Ligler (kulüpler sadece seçili liglerden gelir)</span><div class="chips" id="pl-lg"></div></div>
@@ -639,7 +640,6 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 <section id="s-modes" class="screen scrolly">
   <div class="pf-top"><button class="back" id="md-back" type="button">‹ Geri</button></div>
   <h1 class="cond logo" style="font-size:50px;margin:0">TEK KİŞİLİK</h1>
-  <div class="field"><span class="small muted">Zorluk · bütün modlarda geçerli</span><div class="seg" id="md-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b><small>Ara sıra maç izleyen</small></button><button type="button" class="segb" data-d="orta"><b>ORTA</b><small>Maçkolik takipçisi</small></button><button type="button" class="segb" data-d="zor"><b>ZOR</b><small>Futbol ansiklopedisi</small></button></div><span class="small muted" id="md-dinfo"></span></div>
   <p class="muted" style="margin:0;font-size:15px">Bir mod seç.</p>
   <div class="mlist" id="md-list"></div>
 </section>
@@ -647,7 +647,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 <section id="s-grid" class="screen scrolly">
   <div class="pf-top"><button class="back" id="gx-back" type="button">‹ Modlar</button><span class="coinpill" id="gx-stat"></span></div>
   <h2 class="cond" style="margin:0;font-size:38px;line-height:1">GRID</h2>
-  <p class="small muted" style="margin:0">Her kareye, satırındaki ve sütunundaki iki kulüpte de oynamış bir futbolcu yaz. Bir futbolcu bir kez kullanılır. Her deneme bir hak harcar.</p>
+  <p class="small muted" style="margin:0">Her kareye, satırındaki ve sütunundaki iki kulüpte de oynamış bir futbolcu yaz. Bir futbolcu bir kez kullanılır.</p>
   <div class="gridx" id="gx"></div>
   <div class="gxp" id="gx-panel" hidden>
     <div class="small muted" id="gx-pair"></div>
@@ -1824,7 +1824,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.12.0';
+var APP_VERSION='0.12.1';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2214,7 +2214,7 @@ $('em-yes').onclick=function(){$('exit-modal').hidden=true;var f=EXIT.yes;EXIT.y
 $('exit-modal').addEventListener('click',function(e){if(e.target===this)exitNo();});
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('exit-modal').hidden)exitNo();});
 function pauseRace(){if(SOLO.active&&$('s-orace').classList.contains('on')&&!OR.done){OR.paused=true;OR.pauseAt=performance.now();return function(){OR.t0+=performance.now()-OR.pauseAt;OR.lockUntil+=performance.now()-OR.pauseAt;OR.paused=false;focusIn('or-input');};}return null;}
-$('gx-back').onclick=function(){if(GX&&!GX.over&&(GX.left<12))askExit('Grid yarıda kalacak, puanın kaydedilmeyecek.',openModes);else openModes();};
+$('gx-back').onclick=function(){if(GX&&!GX.over&&GX.cells.some(function(v){return v;}))askExit('Grid yarıda kalacak, puanın kaydedilmeyecek.',openModes);else openModes();};
 $('br-back').onclick=function(){if(BR&&!(BR.done&&BR.round>=3)){var t=performance.now();BR.paused=true;askExit('Köprü Kur yarıda kalacak, puanın kaydedilmeyecek.',function(){clearInterval(BR.iv);openModes();},function(){BR.t0+=performance.now()-t;BR.paused=false;});}else{clearInterval(BR&&BR.iv);openModes();}};
 $('ca-back').onclick=function(){if(CA&&!(CA.done&&CA.round>=5))askExit('Kariyer Tahmini yarıda kalacak, puanın kaydedilmeyecek.',openModes,function(){focusIn('ca-in');});else openModes();};
 $('ta-back').onclick=function(){if(TA&&!TA.over){var t=performance.now();TA.paused=true;askExit('Zamana Karşı yarıda kalacak, puanın kaydedilmeyecek.',function(){TA.over=true;clearInterval(TA.iv);openModes();},function(){TA.end+=performance.now()-t;TA.paused=false;focusIn('ta-in');});}else openModes();};
@@ -2232,7 +2232,7 @@ document.addEventListener('touchend',function(e){var el=e.target;if(el&&el.tagNa
 function focusIn(id){var el=$(id);if(!el)return;if(TOUCH&&ANS[id]&&document.activeElement!==el)el.setAttribute('inputmode','none');var go=function(){if(el.disabled||el.offsetParent===null)return;try{el.focus({preventScroll:true});}catch(e){try{el.focus();}catch(e2){}}};go();setTimeout(function(){if(document.activeElement!==el)go();},90);setTimeout(function(){if(document.activeElement!==el)go();},400);}
 function kbPrime(){var k=$('kbkeep');try{k.focus({preventScroll:true});}catch(e){}}
 ['pk-lock','btn-next','se-again','ca-next','ta-skip'].forEach(function(id){var b=$(id);if(b)b.addEventListener('click',kbPrime,true);});
-$('md-list').addEventListener('click',function(e){var b=e.target.closest('.mcard');if(b&&(b.dataset.m==='daily'||b.dataset.m==='career'||b.dataset.m==='ta'))kbPrime();},true);
+$('md-list').addEventListener('click',function(e){var b=e.target.closest('.mcard');if(b&&b.dataset.m==='daily')kbPrime();},true);
 
 /* ---------- extra single modes: shared helpers ---------- */
 var PAIRC=null;
@@ -2275,7 +2275,7 @@ function openModes(){
 }
 $('md-back').onclick=function(){show('s-intro');renderProfBtn();};
 $('md-list').addEventListener('click',function(e){var b=e.target.closest('.mcard');if(!b)return;var m=b.dataset.m;
- if(m==='classic')show('s-start');else if(m==='daily')dailyStart();else if(m==='grid')gridStart();else if(m==='bridge')bridgeStart();else if(m==='career')careerStart();else if(m==='ta')taStart();else if(m==='sk')skStart();});
+ if(m==='classic')show('s-start');else if(m==='daily')dailyStart();else if(m==='grid')askDiff('Grid',gridStart);else if(m==='bridge')askDiff('Köprü Kur',bridgeStart);else if(m==='career')askDiff('Kariyer Tahmini',careerStart);else if(m==='ta')askDiff('Zamana Karşı',taStart);else if(m==='sk')askDiff('Sonuna Kadar',skStart);});
 /* ---------- GRID ---------- */
 function genGrid_old(minC,rng){
  rng=rng||Math.random;var big=bigClubs().slice(0,36);
@@ -2290,7 +2290,7 @@ function genGrid_old(minC,rng){
 var GX=null;
 function gridStart(){
  var g=genGrid(3);if(!g){gtoast('Grid oluşturulamadı, tekrar dene');return;}
- GX={R:g.R,C:g.C,cells:[null,null,null,null,null,null,null,null,null],used:{},left:12,sel:-1,over:false};
+ GX={R:g.R,C:g.C,cells:[null,null,null,null,null,null,null,null,null],used:{},left:12,wrong:0,sel:-1,over:false};
  gridRender();show('s-grid');
 }
 function gridRender(){
@@ -2300,29 +2300,29 @@ function gridRender(){
    h+='<button type="button" class="gc'+(v&&!v.miss?' ok':'')+(v&&v.miss?' miss':'')+(GX.sel===i?' sel':'')+'" data-i="'+i+'"'+(v||GX.over?' disabled':'')+'>'+(v?esc(v.n):'')+'</button>';}}
  $('gx').innerHTML=h;
  var filled=GX.cells.filter(function(v){return v&&!v.miss;}).length;
- $('gx-stat').textContent='Hak '+GX.left+' · '+filled+'/9';
+ $('gx-stat').textContent=filled+'/9';
 }
 $('gx').addEventListener('click',function(e){var b=e.target.closest('.gc');if(!b||b.disabled||GX.over)return;GX.sel=+b.dataset.i;var r=Math.floor(GX.sel/3),c=GX.sel%3;
  $('gx-pair').innerHTML='<b>'+esc(CLUBS[GX.R[r]].n)+'</b> × <b>'+esc(CLUBS[GX.C[c]].n)+'</b> · ikisinde de oynamış kim?';$('gx-panel').hidden=false;$('gx-msg').textContent='';clearAns('gx-in','gx-sugg');gridRender();focusIn('gx-in');});
 bindAnswer('gx-in','gx-sugg',function(name){
  if(GX.sel<0||GX.over)return;var r=Math.floor(GX.sel/3),c=GX.sel%3,a=GX.R[r],b=GX.C[c];
  var cands=resolve(name);if(!cands.length&&!String(name).trim())return;
- GX.left--;
+ ;
  var pl=cands.filter(function(p){return p.clubs.indexOf(a)>-1&&p.clubs.indexOf(b)>-1;})[0];
- if(pl&&GX.used[pl.name]){GX.left++;$('gx-msg').innerHTML='<span class="bad">'+esc(pl.name)+' zaten kullanıldı</span>';shake($('gx-panel'));return;}
+ if(pl&&GX.used[pl.name]){;$('gx-msg').innerHTML='<span class="bad">'+esc(pl.name)+' zaten kullanıldı</span>';shake($('gx-panel'));return;}
  if(pl){GX.cells[GX.sel]={n:pl.name};GX.used[pl.name]=1;GX.sel=-1;$('gx-panel').hidden=true;profRound(0,pl.name);if(navigator.vibrate){try{navigator.vibrate(30);}catch(e){}}}
- else{$('gx-msg').innerHTML='<span class="bad">Yanlış: '+esc(cands[0]?cands[0].name:name)+'</span>';shake($('gx-panel'));}
+ else{GX.wrong++;$('gx-msg').innerHTML='<span class="bad">Yanlış: '+esc(cands[0]?cands[0].name:name)+'</span>';shake($('gx-panel'));}
  clearAns('gx-in','gx-sugg');gridRender();
  var filled=GX.cells.filter(function(v){return v&&!v.miss;}).length;
- if(filled===9||GX.left<=0)setTimeout(gridEnd,500);
+ if(filled===9)setTimeout(gridEnd,500);
 });
 $('gx-end').onclick=function(){if(!GX.over)gridEnd();};
 function gridEnd(){
  GX.over=true;$('gx-panel').hidden=true;
  var filled=0;for(var i=0;i<9;i++){if(GX.cells[i]){filled++;continue;}var r=Math.floor(i/3),c=i%3,ans=common(GX.R[r],GX.C[c]).filter(function(p){return !GX.used[p.name];}).sort(function(x,y){return y.fame-x.fame;})[0];GX.cells[i]={n:ans?ans.name:'—',miss:true};}
  gridRender();
- var score=filled*100+(filled===9?GX.left*20:0),rr=modeReward('grid','▦ Grid · '+filled+'/9',score);
- setTimeout(function(){endScreen({sub:'Grid · '+filled+'/9 kare',score:score,rec:rr.rec,rw:rr.rw,chips:['<div class="chip">Dolu kare<b>'+filled+' / 9</b></div>','<div class="chip">Kalan hak<b>'+GX.left+'</b></div>'],again:gridStart,menuLabel:'Tabloyu gör',menu:function(){show('s-grid');$('gx-end').textContent='Modlara dön';$('gx-end').onclick=function(){$('gx-end').textContent='Bitir';$('gx-end').onclick=function(){if(!GX.over)gridEnd();};openModes();};}});},1600);
+ var score=filled*100,rr=modeReward('grid','▦ Grid · '+filled+'/9',score);
+ setTimeout(function(){endScreen({sub:'Grid · '+filled+'/9 kare',score:score,rec:rr.rec,rw:rr.rw,chips:['<div class="chip">Dolu kare<b>'+filled+' / 9</b></div>','<div class="chip">Yanlış deneme<b>'+GX.wrong+'</b></div>'],again:gridStart,menuLabel:'Tabloyu gör',menu:function(){show('s-grid');$('gx-end').textContent='Modlara dön';$('gx-end').onclick=function(){$('gx-end').textContent='Bitir';$('gx-end').onclick=function(){if(!GX.over)gridEnd();};openModes();};}});},1600);
 }
 /* ---------- KÖPRÜ KUR ---------- */
 var BR=null;
@@ -2563,12 +2563,14 @@ function xoNext(){
 /* in kolay / orta the club list only offers clubs that fit the level */
 function pickAllowed(id){return !SOLO.active||SOLO.daily||inPool(SOLO.diff,id);}
 /* one difficulty switch on the mode list, shared by every single-player mode */
-function mdDiffRender(){
- document.querySelectorAll('#md-diff .segb').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.d===SOLO.diff);});
- $('md-dinfo').textContent=DLAB[SOLO.diff].i;
-}
-$('md-diff').addEventListener('click',function(e){var b=e.target.closest('.segb');if(!b)return;SOLO.diff=b.dataset.d;SOLO.time=DIFF[SOLO.diff].t/1000;
- try{var s=JSON.parse(localStorage.getItem('oo-solo-cfg')||'{}');s.d=SOLO.diff;s.t=SOLO.time;localStorage.setItem('oo-solo-cfg',JSON.stringify(s));}catch(x){}mdDiffRender();soloCfgRender();});
+function mdDiffRender(){}
+/* small level picker shown when a mode without its own setup screen is opened */
+var DPICK=null;
+function askDiff(name,go){DPICK=go;$('dp-title').textContent=name;document.querySelectorAll('#dp-seg .segb').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.d===SOLO.diff);});$('dpm').hidden=false;}
+$('dp-seg').addEventListener('click',function(e){var b=e.target.closest('.segb');if(!b)return;SOLO.diff=b.dataset.d;SOLO.time=DIFF[SOLO.diff].t/1000;
+ try{var s=JSON.parse(localStorage.getItem('oo-solo-cfg')||'{}');s.d=SOLO.diff;s.t=SOLO.time;localStorage.setItem('oo-solo-cfg',JSON.stringify(s));}catch(x){}
+ $('dpm').hidden=true;soloCfgRender();var f=DPICK;DPICK=null;if(f)f();});
+$('dpm').addEventListener('click',function(e){if(e.target===this||e.target.closest('#dp-x')){this.hidden=true;DPICK=null;}});
 
 /* ---------- ZAMANA KARŞI ---------- */
 var TA=null;
@@ -2618,7 +2620,7 @@ function soloCfgRender(){
  document.querySelectorAll('#sd-diff .segb').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.d===SOLO.diff);});
  stepSet('sd-rstep',SOLO.rounds);stepSet('sd-tstep',SOLO.time);
  var best=PROF&&PROF.st.solo&&PROF.st.solo.best[SOLO.diff];
- $('sd-info').innerHTML='<b>'+DIFF[SOLO.diff].n+':</b> '+DIFF[SOLO.diff].info+' Süreyi istediğin gibi değiştirebilirsin; zorluk, eşleşmelerin zorluğunu ve puan çarpanını belirler.'+'<br><span class="small muted">Doğru cevap 100 puan + hız bonusu (en fazla 100), zorluk çarpanıyla.'+(best?' Rekorun: <b>'+best+'</b>':'')+'</span>';
+ $('sd-info').innerHTML='<span class="small muted">Doğru cevap 100 puan + hız bonusu'+(SOLO.diff==='kolay'?'':', '+(SOLO.diff==='orta'?'1,5':'2')+' kat puan')+'.'+(best?' Rekorun: <b>'+best+'</b>':'')+'</span>';
 }
 $('sd-diff').addEventListener('click',function(e){var b=e.target.closest('.segb');if(!b)return;SOLO.diff=b.dataset.d;SOLO.time=DIFF[SOLO.diff].t/1000;soloCfgRender();});
 bindStepper('sd-rstep',1,50,function(v){SOLO.rounds=v;});
