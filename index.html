@@ -241,7 +241,24 @@ body.online.emote-ok #emote-btn{display:flex}
 .hist{display:flex;flex-direction:column;gap:6px}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
 .hrow b.w{color:var(--good)}.hrow b.l{color:var(--bad)}
-.pe-prev{display:flex;justify-content:center}
+.pe-prev{display:flex;justify-content:center;position:sticky;top:0;z-index:3;padding:8px 0;margin:0 auto;width:178px;border-radius:24px;background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.pe-prev svg{filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
+.pe-tabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.pe-tab{flex:1;min-height:42px;border:none;border-radius:10px;background:transparent;color:inherit;font-weight:700;font-size:16px}
+.pe-tab[aria-selected="true"]{background:var(--surface2);box-shadow:inset 0 0 0 2px var(--accent-line)}
+#pe-char,#pe-kit{display:flex;flex-direction:column;gap:14px}
+#pe-char[hidden],#pe-kit[hidden]{display:none}
+#pe-look{display:flex;flex-direction:column;gap:14px}
+.lk-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lk-row::-webkit-scrollbar{display:none}
+.lkb{flex:0 0 auto;width:74px;border-radius:14px;border:2px solid var(--line);background:var(--surface);padding:4px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:600;color:inherit;position:relative}
+.lkb[aria-pressed="true"]{border-color:var(--accent-line);background:var(--surface2)}
+.lkb.locked svg{filter:grayscale(1) brightness(.6)}
+.lkb .lk-lock{position:absolute;top:4px;right:6px;font-size:13px}
+.lkc{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line);position:relative}
+.lkc[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent-line)}
+.lkc.locked::after{content:'🔒';position:absolute;inset:0;display:grid;place-items:center;font-size:14px;background:rgba(0,0,0,.45);border-radius:50%}
+.pe-rnd{min-height:46px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chipbtn{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);font-weight:600;display:flex;align-items:center;gap:6px}
 .chipbtn[aria-pressed="true"]{border-color:var(--accent-line);background:var(--surface2)}
@@ -558,13 +575,20 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div class="pf-top"><button class="back" id="pe-back">‹ Geri</button><h2 class="cond" id="pe-title" style="margin:0;font-size:30px">PROFİLİNİ OLUŞTUR</h2></div>
   <div class="pe-prev" id="pe-avatar"></div>
   <div class="field"><label for="pe-name" class="small muted">Kullanıcı adın</label><input id="pe-name" type="text" maxlength="14" autocomplete="off" placeholder="Adın"></div>
+  <div class="pe-tabs" role="tablist"><button type="button" class="pe-tab" data-t="char" aria-selected="true">Karakter</button><button type="button" class="pe-tab" data-t="kit" aria-selected="false">Forma & bilgi</button></div>
+  <div id="pe-char">
+   <button type="button" class="ghost pe-rnd" id="pe-rnd">🎲 Rastgele karakter</button>
+   <div class="field"><span class="small muted">Ten / kafa rengi</span><div class="sw" id="pe-skin"></div></div>
+   <div id="pe-look"></div>
+  </div>
+  <div id="pe-kit" hidden>
   <div class="field"><label for="pe-club" class="small muted">Tuttuğun takım</label><select id="pe-club"></select></div>
   <div class="field"><span class="small muted">Forma deseni</span><div class="chips" id="pe-pat"></div></div>
   <div class="field"><span class="small muted">Ana renk</span><div class="sw" id="pe-c1"></div></div>
   <div class="field"><span class="small muted">İkinci renk</span><div class="sw" id="pe-c2"></div></div>
   <div class="field"><span class="small muted">Şort rengi</span><div class="sw" id="pe-sh"></div></div>
-  <div class="field"><span class="small muted">Kafa rengi</span><div class="sw" id="pe-skin"></div></div>
   <div class="field"><label for="pe-num" class="small muted">Forma numarası</label><input id="pe-num" type="text" inputmode="numeric" maxlength="2" autocomplete="off"></div>
+  </div>
   <button class="cta" id="pe-save">Kaydet</button>
   <button class="ghost" id="pe-reset" hidden>Profili sıfırla</button>
 </section>
@@ -1574,7 +1598,7 @@ var PKEY='oo-profile-v1',PROF=null,AVN=0;
 var SKINC=['#F2C9A0','#D9A06B','#A86B3C','#6B4226','#C9D1D9','#8FD3B6','#F5D90A','#B39DDB'];
 var SHC=['#FFFFFF','#111111','#0A1F5C','#E30613','#F5D90A','#2F6BFF','#00843D','#8E1F2F'];
 var SLOT={armband:'arm',collar:'collar',star:'chest',cap:'hat',beanie:'hat',headband:'hat',crown:'hat',glasses:'eyes',shades:'eyes',visor:'eyes',earring:'ear',wrist:'wrist',wrist_gold:'wrist',chain:'neck',capcrest:'hatx'};
-function avatarSVG(p,size,ov){
+function avatarSVG_v1(p,size,ov){
  ov=ov||{};var k=p.kit||{},pat=ov.pattern||k.pattern,acc=ov.acc||(p.eq&&p.eq.acc)||[],frame=('frame' in ov)?ov.frame:(p.eq&&p.eq.frame),id='av'+(++AVN);
  var c1=k.c1||'#E30613',c2=k.c2||'#FFFFFF',sh=k.sh||c2,skin=k.skin||SKINC[0];
  var has=function(x){return acc.indexOf(x)>-1;};
@@ -1654,21 +1678,180 @@ function eqToggle(id){var a=PROF.eq.acc,i=a.indexOf(id);if(i>-1){a.splice(i,1);i
  var s=SLOT[id];if(s)PROF.eq.acc=a=a.filter(function(x){return SLOT[x]!==s;});if(id==='capcrest'&&a.indexOf('cap')<0)a.push('cap');if(SLOT[id]==='hat'&&id!=='cap'){var k=a.indexOf('capcrest');if(k>-1)a.splice(k,1);}a.push(id);}
 function renderStore(){
  $('st-coins').textContent=PROF.coins;var coin=$('st-coins').previousElementSibling.outerHTML;
- var groups=[['head','Kafa'],['acc','Aksesuar'],['pat','Forma deseni'],['frame','Çerçeve']];
+ var groups=[['style','Stil · karakter'],['head','Kafa'],['acc','Aksesuar'],['pat','Forma deseni'],['frame','Çerçeve']];
  $('st-grid').innerHTML=groups.map(function(gr){
   return '<h3 class="sec" style="grid-column:1/-1;margin:6px 0 0">'+gr[1].toLocaleUpperCase('tr-TR')+'</h3>'+STORE.filter(function(it){return it.cat===gr[0];}).map(function(it){
    var own=PROF.owned.indexOf(it.id)>-1,ov={},isAcc=it.cat==='acc'||it.cat==='head';
    if(isAcc){var save=PROF.eq.acc.slice();if(PROF.eq.acc.indexOf(it.id)<0)eqToggle(it.id);ov.acc=PROF.eq.acc.slice();PROF.eq.acc=save;}
-   if(it.cat==='frame')ov.frame=it.id;if(it.cat==='pat')ov.pattern=it.pat;
-   var on=(isAcc&&PROF.eq.acc.indexOf(it.id)>-1)||(it.cat==='frame'&&PROF.eq.frame===it.id)||(it.cat==='pat'&&PROF.kit.pattern===it.pat);
+   if(it.cat==='frame')ov.frame=it.id;if(it.cat==='pat')ov.pattern=it.pat;if(it.cat==='style'){ov.look={};ov.look[it.part]=it.v;}
+   var on=(it.cat==='style'&&lookOf(PROF)[it.part]===it.v)||(isAcc&&PROF.eq.acc.indexOf(it.id)>-1)||(it.cat==='frame'&&PROF.eq.frame===it.id)||(it.cat==='pat'&&PROF.kit.pattern===it.pat);
    var lock=own?'':reqLeft(it),btn;
-   if(own)btn='<button class="eq'+(on?' on':'')+'" data-eq="'+it.id+'">'+(on?(it.cat==='pat'?'Formanda':'Takılı ✓'):(it.cat==='pat'?'Formana uygula':'Tak'))+'</button>';
+   if(own)btn='<button class="eq'+(on?' on':'')+'" data-eq="'+it.id+'">'+(on?(it.cat==='pat'?'Formanda':it.cat==='style'?'Seçili ✓':'Takılı ✓'):(it.cat==='pat'?'Formana uygula':it.cat==='style'?'Uygula':'Tak'))+'</button>';
    else if(lock)btn='<button class="buy" disabled>🔒 '+esc(lock)+'</button>';
    else btn='<button class="buy" data-buy="'+it.id+'"'+(PROF.coins<it.p?' disabled':'')+'>'+coin+it.p+'</button>';
    return '<div class="sitem'+(lock?' locked':'')+'">'+avatarSVG(PROF,84,ov)+'<div class="nm">'+esc(it.n)+'</div><div class="ct">'+(lock?coin+it.p:'&nbsp;')+'</div>'+btn+'</div>';
   }).join('');
  }).join('');
 }
+
+/* ---------- avatar v3: chibi character — choose head, hair, face; wear the kit ---------- */
+var LOOKOPT={
+ shape:[['yuvarlak','Yuvarlak'],['oval','Oval'],['kare','Kare'],['genis','Geniş çene'],['top','Top kafa','s_top'],['robot','Robot','s_robot'],['uzayli','Uzaylı','s_alien']],
+ hair:[['kel','Kel'],['kisa','Kısa'],['yan','Yan ayrık'],['kakul','Kâkül'],['kivircik','Kıvırcık'],['uzun','Uzun'],['atkuyrugu','At kuyruğu','h_atkuyrugu'],['topuz','Topuz','h_topuz'],['afro','Afro','h_afro'],['sivri','Sivri','h_sivri'],['mohawk','Mohawk','h_mohawk'],['mullet','Mullet','h_mullet'],['dread','Rasta','h_dread']],
+ hc:[['#1b1b1b','Siyah'],['#5a3825','Kahve'],['#E8C35A','Sarı'],['#B5482A','Kızıl'],['#9AA0A6','Gri'],['#EDEDED','Beyaz'],['#FF5FA2','Pembe','hc_pembe'],['#3BA3FF','Mavi','hc_mavi'],['#3DDC97','Yeşil','hc_yesil'],['#9B5DE5','Mor','hc_mor'],['rb','Gökkuşağı','hc_rb']],
+ eyes:[['nokta','Nokta'],['buyuk','Kocaman'],['uykulu','Uykulu'],['kirpan','Göz kırpan'],['saskin','Şaşkın'],['kizgin','Hırslı'],['yildiz','Yıldız','e_yildiz'],['kalp','Kalp','e_kalp']],
+ brows:[['yok','Yok'],['ince','İnce'],['kalin','Kalın'],['kalkik','Kalkık'],['catik','Çatık']],
+ nose:[['nokta','Minik'],['yuvarlak','Yuvarlak'],['sivri','Sivri'],['buyuk','Kocaman'],['palyaco','Palyaço','n_palyaco']],
+ mouth:[['gulumse','Gülümseme'],['sirit','Sırıtma'],['saskin','Şaşkın'],['ciddi','Ciddi'],['dil','Dil çıkarma','m_dil']],
+ beard:[['yok','Yok'],['biyik','Bıyık'],['keci','Keçi sakal'],['sakal','Sakal'],['kirli','Kirli sakal'],['favori','Favori']],
+ extra:[['yok','Yok'],['allik','Allık'],['cil','Çil'],['boya','Yüz boyası','x_boya'],['bant','Yara bandı','x_bant']]};
+var LOOKDEF={shape:'yuvarlak',hair:'kisa',hc:'#1b1b1b',eyes:'nokta',brows:'ince',nose:'nokta',mouth:'gulumse',beard:'yok',extra:'yok'};
+function lookOf(p,ov){var l=Object.assign({},LOOKDEF,p.look||{},ov&&ov.look||{});return l;}
+function shade(hex,f){if(!/^#/.test(hex))return hex;var n=parseInt(hex.slice(1),16),r=n>>16&255,g=n>>8&255,b=n&255;r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+function headPath(s){
+ if(s==='oval')return '<ellipse cx="50" cy="31" rx="15" ry="18.5" F/>';
+ if(s==='kare'||s==='robot')return '<rect x="33.5" y="14" width="33" height="33.5" rx="'+(s==='robot'?3:8)+'" F/>';
+ if(s==='genis')return '<path d="M50 14 C41 14 36 20 35 28 C34 36 34 44 41 47.5 C46 49.5 54 49.5 59 47.5 C66 44 66 36 65 28 C64 20 59 14 50 14Z" F/>';
+ if(s==='uzayli')return '<path d="M50 10.5 C35 10.5 30.5 21 31.5 29 C32.5 38 41 48.5 50 48.5 C59 48.5 67.5 38 68.5 29 C69.5 21 65 10.5 50 10.5Z" F/>';
+ return '<circle cx="50" cy="31" r="17" F/>';
+}
+function avatarSVG(p,size,ov){
+ ov=ov||{};var k=p.kit||{},pat=ov.pattern||k.pattern,acc=ov.acc||(p.eq&&p.eq.acc)||[],frame=('frame' in ov)?ov.frame:(p.eq&&p.eq.frame),id='av'+(++AVN);
+ var L=lookOf(p,ov),c1=k.c1||'#E30613',c2=k.c2||'#FFFFFF',sh=k.sh||c2,skin=k.skin||SKINC[0],skD=shade(skin,.78);
+ if(L.shape==='top'){skin='#F4F4F4';skD='#b9b9b9';}
+ var has=function(x){return acc.indexOf(x)>-1;},hat=has('cap')||has('beanie')||has('crown');
+ var hcol=L.hc==='rb'?'url(#'+id+'r)':L.hc,hcD=L.hc==='rb'?'#7a3cff':shade(L.hc,.7),ink='#1a1410';
+ var S='M35 52 L44 48 Q50 52.5 56 48 L65 52 L75 61 L70 68 L65 65 L65 82 Q50 85 35 82 L35 65 L30 68 L25 61 Z';
+ var g='<svg width="'+size+'" height="'+size+'" viewBox="0 0 100 100" aria-hidden="true"><defs><clipPath id="'+id+'c"><path d="'+S+'"/></clipPath><clipPath id="'+id+'o"><circle cx="50" cy="50" r="45"/></clipPath>'+
+  '<linearGradient id="'+id+'g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF1A8"/><stop offset=".5" stop-color="#FFD23F"/><stop offset="1" stop-color="#C98A00"/></linearGradient>'+
+  '<linearGradient id="'+id+'f" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF3D00"/><stop offset=".5" stop-color="#FF9100"/><stop offset="1" stop-color="#FFEA00"/></linearGradient>'+
+  '<linearGradient id="'+id+'r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF3B3B"/><stop offset=".25" stop-color="#FFB800"/><stop offset=".5" stop-color="#3DDC97"/><stop offset=".75" stop-color="#3BA3FF"/><stop offset="1" stop-color="#9B5DE5"/></linearGradient>'+
+  '<radialGradient id="'+id+'h" cx=".35" cy=".28" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".22"/></radialGradient>'+
+  '<radialGradient id="'+id+'b" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="#2a3d33"/><stop offset="1" stop-color="#0c1511"/></radialGradient></defs>';
+ g+='<circle cx="50" cy="50" r="46" fill="url(#'+id+'b)"/><g clip-path="url(#'+id+'o)">';
+ /* body */
+ g+='<rect x="38" y="91" width="8" height="10" rx="2" fill="'+c1+'"/><rect x="54" y="91" width="8" height="10" rx="2" fill="'+c1+'"/><rect x="38" y="91" width="8" height="2" fill="'+c2+'"/><rect x="54" y="91" width="8" height="2" fill="'+c2+'"/>';
+ g+='<path d="M36 81 Q50 84 64 81 L66 92 L53 92 L50 87.5 L47 92 L34 92 Z" fill="'+sh+'" stroke="rgba(0,0,0,.4)" stroke-width="1.1"/>';
+ g+='<circle cx="27" cy="69" r="3.3" fill="'+skin+'" stroke="rgba(0,0,0,.35)" stroke-width=".7"/><circle cx="73" cy="69" r="3.3" fill="'+skin+'" stroke="rgba(0,0,0,.35)" stroke-width=".7"/>';
+ g+='<g clip-path="url(#'+id+'c)"><rect width="100" height="100" fill="'+c1+'"/>';
+ if(pat==='stripes'){for(var x=27;x<75;x+=9)g+='<rect x="'+x+'" y="0" width="4.5" height="100" fill="'+c2+'"/>';}
+ else if(pat==='halves')g+='<rect x="50" y="0" width="50" height="100" fill="'+c2+'"/>';
+ else if(pat==='hoops'){for(var y=55;y<84;y+=9)g+='<rect x="0" y="'+y+'" width="100" height="4.5" fill="'+c2+'"/>';}
+ else if(pat==='sash')g+='<polygon points="35,49 44,49 67,84 58,84" fill="'+c2+'"/>';
+ g+='</g><path d="'+S+'" fill="none" stroke="rgba(0,0,0,.42)" stroke-width="1.2"/>';
+ var col=has('collar');g+='<path d="M44 48 Q50 54 56 48" fill="none" stroke="'+(col?'url(#'+id+'g)':c2)+'" stroke-width="'+(col?3.2:2.2)+'" stroke-linecap="round"/>';
+ if(has('chain'))g+='<path d="M44.5 49 Q50 58.5 55.5 49" fill="none" stroke="url(#'+id+'g)" stroke-width="1.3"/><circle cx="50" cy="56.6" r="2" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".5"/>';
+ var cl=CLUBS[p.club],crestAt=function(x,y,s){return '<g transform="translate('+x+' '+y+') scale('+s+')"><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 C12 38 4 32 4 22 V8 Z" fill="'+cl.c[0]+'"/><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 Z" fill="'+cl.c[1]+'"/><path d="M20 2 L36 8 V22 C36 32 28 38 20 42 C12 38 4 32 4 22 V8 Z" fill="none" stroke="rgba(0,0,0,.5)" stroke-width="2.6"/></g>';};
+ if(cl)g+=crestAt(38.3,55,.14);
+ if(has('star'))g+='<polygon points="61,55 62.2,57.8 65.2,58 62.9,60 63.6,62.9 61,61.4 58.4,62.9 59.1,60 56.8,58 59.8,57.8" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".4"/>';
+ g+='<text x="50" y="77" text-anchor="middle" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="700" font-size="12.5" fill="#fff" stroke="rgba(0,0,0,.6)" stroke-width="1.6" paint-order="stroke">'+esc(k.num||'')+'</text>';
+ if(has('armband'))g+='<g transform="rotate(42 70 58)"><rect x="65.3" y="55.8" width="9.5" height="4.4" rx="1" fill="#F5D90A" stroke="#7a6400" stroke-width=".6"/><text x="70" y="59.3" font-size="4" text-anchor="middle" font-weight="700" fill="#111" font-family="Arial,sans-serif">C</text></g>';
+ if(has('wrist'))g+='<g transform="rotate(-40 71.5 65.5)"><rect x="68" y="64.2" width="7" height="2.8" rx="1" fill="'+c2+'" stroke="rgba(0,0,0,.45)" stroke-width=".5"/></g>';
+ if(has('wrist_gold'))g+='<g transform="rotate(40 28.5 65.5)"><rect x="25" y="64.2" width="7" height="2.8" rx="1" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".5"/></g>';
+ /* hair behind the head */
+ var hair=L.hair;if(hat&&['afro','mohawk','sivri','topuz','kivircik'].indexOf(hair)>-1)hair='kisa';
+ var hb='';
+ if(hair==='uzun')hb='<path d="M31.5 30 C31 14 40 10 50 10 C60 10 69 14 68.5 30 L70 53 L61 51 L60 38 L40 38 L39 51 L30 53 Z" fill="'+hcol+'"/>';
+ if(hair==='afro')hb='<circle cx="50" cy="25" r="23" fill="'+hcol+'"/>';
+ if(hair==='atkuyrugu')hb='<path d="M60 18 C74 18 77 32 72 46 C69 40 66 33 61 27Z" fill="'+hcol+'"/>';
+ if(hair==='mullet')hb='<path d="M35 33 L34 50 L42 49 L42 40 L58 40 L58 49 L66 50 L65 33 Z" fill="'+hcol+'"/>';
+ if(hair==='dread'){hb='';[[36,26,33,49],[40,22,39,51],[45,20,45,46],[55,20,55,46],[60,22,61,51],[64,26,67,49]].forEach(function(d){hb+='<path d="M'+d[0]+' '+d[1]+' L'+d[2]+' '+d[3]+'" stroke="'+hcol+'" stroke-width="4" stroke-linecap="round"/>';});}
+ g+='<g transform="translate(50 48) scale(1.1) translate(-50 -48)">'+hb;
+ /* ears, head */
+ var s=L.shape;
+ if(['yuvarlak','oval','kare','genis','top'].indexOf(s)>-1)g+='<circle cx="33.3" cy="32" r="3.2" fill="'+skin+'" stroke="rgba(0,0,0,.35)" stroke-width=".7"/><circle cx="66.7" cy="32" r="3.2" fill="'+skin+'" stroke="rgba(0,0,0,.35)" stroke-width=".7"/>';
+ if(s==='robot')g+='<line x1="50" y1="14" x2="50" y2="7" stroke="#888" stroke-width="1.6"/><circle cx="50" cy="6" r="2.3" fill="#FF3B3B"/><rect x="30.5" y="27" width="3.5" height="9" rx="1" fill="#888"/><rect x="66" y="27" width="3.5" height="9" rx="1" fill="#888"/>';
+ if(s==='uzayli')g+='<path d="M38 15 L33 6" stroke="'+skD+'" stroke-width="1.5"/><circle cx="32.5" cy="5.5" r="2" fill="#3DDC97"/><path d="M62 15 L67 6" stroke="'+skD+'" stroke-width="1.5"/><circle cx="67.5" cy="5.5" r="2" fill="#3DDC97"/>';
+ var hp=headPath(s);
+ g+=hp.replace('F/','fill="'+skin+'"/')+hp.replace('F/','fill="url(#'+id+'h)"/')+hp.replace('F/','fill="none" stroke="rgba(0,0,0,.38)" stroke-width="1"/');
+ if(s==='top')g+='<g opacity=".85"><polygon points="50,15 54,17.8 52.5,22 47.5,22 46,17.8" fill="#1a1a1a"/><path d="M46 17.8 L37 17 M54 17.8 L63 17 M47.5 22 L44 27 M52.5 22 L56 27 M37 17 L34.5 26 M63 17 L65.5 26 M34.5 40 L41 46 M65.5 40 L59 46" stroke="#1a1a1a" stroke-width=".8" fill="none"/><polygon points="34,36 36.5,40 34.5,43" fill="#1a1a1a"/><polygon points="66,36 63.5,40 65.5,43" fill="#1a1a1a"/></g>';
+ if(s==='robot')g+='<circle cx="36.5" cy="17" r=".9" fill="#666"/><circle cx="63.5" cy="17" r=".9" fill="#666"/><circle cx="36.5" cy="44.5" r=".9" fill="#666"/><circle cx="63.5" cy="44.5" r=".9" fill="#666"/>';
+ /* face extras under features */
+ var ex=L.extra;
+ if(ex==='allik')g+='<ellipse cx="40" cy="37" rx="3.2" ry="2" fill="#FF6B8A" opacity=".45"/><ellipse cx="60" cy="37" rx="3.2" ry="2" fill="#FF6B8A" opacity=".45"/>';
+ if(ex==='cil'){[[39,35],[41.5,36.5],[40,38],[61,35],[58.5,36.5],[60,38]].forEach(function(d){g+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r=".6" fill="'+shade(skin,.6)+'"/>';});}
+ if(ex==='boya')g+='<rect x="37" y="34.5" width="6.5" height="1.6" rx=".8" fill="'+c1+'"/><rect x="37" y="36.8" width="6.5" height="1.6" rx=".8" fill="'+c2+'"/><rect x="56.5" y="34.5" width="6.5" height="1.6" rx=".8" fill="'+c1+'"/><rect x="56.5" y="36.8" width="6.5" height="1.6" rx=".8" fill="'+c2+'"/>';
+ /* eyes */
+ var E=L.eyes,ey=s==='uzayli'?30:31,eyeL=43.5,eyeR=56.5;
+ var dot=function(x,r){return '<circle cx="'+x+'" cy="'+ey+'" r="'+r+'" fill="'+ink+'"/>';};
+ if(s==='uzayli'&&(E==='nokta'||E==='buyuk'))g+='<ellipse cx="'+(eyeL-.5)+'" cy="'+ey+'" rx="4.2" ry="5.4" fill="#111" transform="rotate(-18 '+(eyeL-.5)+' '+ey+')"/><ellipse cx="'+(eyeR+.5)+'" cy="'+ey+'" rx="4.2" ry="5.4" fill="#111" transform="rotate(18 '+(eyeR+.5)+' '+ey+')"/><circle cx="42" cy="'+(ey-2)+'" r="1" fill="#fff"/><circle cx="56" cy="'+(ey-2)+'" r="1" fill="#fff"/>';
+ else if(s==='robot'&&E==='nokta')g+='<rect x="40" y="'+(ey-1.6)+'" width="7" height="3.2" rx="1" fill="#36F1FF"/><rect x="53" y="'+(ey-1.6)+'" width="7" height="3.2" rx="1" fill="#36F1FF"/>';
+ else if(E==='nokta')g+=dot(eyeL,1.9)+dot(eyeR,1.9)+'<circle cx="'+(eyeL+.6)+'" cy="'+(ey-.6)+'" r=".55" fill="#fff"/><circle cx="'+(eyeR+.6)+'" cy="'+(ey-.6)+'" r=".55" fill="#fff"/>';
+ else if(E==='buyuk')[eyeL,eyeR].forEach(function(x){g+='<ellipse cx="'+x+'" cy="'+ey+'" rx="3.2" ry="3.8" fill="#fff" stroke="'+ink+'" stroke-width=".6"/><circle cx="'+x+'" cy="'+(ey+.5)+'" r="2" fill="'+ink+'"/><circle cx="'+(x+.8)+'" cy="'+(ey-.5)+'" r=".75" fill="#fff"/>';});
+ else if(E==='uykulu')[eyeL,eyeR].forEach(function(x){g+='<path d="M'+(x-3)+' '+ey+' Q'+x+' '+(ey+2.4)+' '+(x+3)+' '+ey+'" fill="none" stroke="'+ink+'" stroke-width="1.3" stroke-linecap="round"/><path d="M'+(x-3.3)+' '+(ey-.4)+' L'+(x+3.3)+' '+(ey-.4)+'" stroke="'+skD+'" stroke-width="1" stroke-linecap="round"/>';});
+ else if(E==='kirpan')g+=dot(eyeL,1.9)+'<path d="M'+(eyeR-3)+' '+(ey+.5)+' Q'+eyeR+' '+(ey-2.5)+' '+(eyeR+3)+' '+(ey+.5)+'" fill="none" stroke="'+ink+'" stroke-width="1.4" stroke-linecap="round"/>';
+ else if(E==='saskin')[eyeL,eyeR].forEach(function(x){g+='<circle cx="'+x+'" cy="'+ey+'" r="3.3" fill="#fff" stroke="'+ink+'" stroke-width=".6"/><circle cx="'+x+'" cy="'+ey+'" r="1" fill="'+ink+'"/>';});
+ else if(E==='kizgin')g+=dot(eyeL,1.9)+dot(eyeR,1.9)+'<path d="M'+(eyeL-3)+' '+(ey-3)+' L'+(eyeL+2.8)+' '+(ey-1.4)+' M'+(eyeR+3)+' '+(ey-3)+' L'+(eyeR-2.8)+' '+(ey-1.4)+'" stroke="'+ink+'" stroke-width="1.4" stroke-linecap="round"/>';
+ else if(E==='yildiz')[eyeL,eyeR].forEach(function(x){g+='<polygon points="'+[0,1,2,3,4,5,6,7,8,9].map(function(i){var a=-Math.PI/2+i*Math.PI/5,r=i%2?1.6:3.8;return (x+r*Math.cos(a)).toFixed(2)+','+(ey+r*Math.sin(a)).toFixed(2);}).join(' ')+'" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".4"/>';});
+ else if(E==='kalp')[eyeL,eyeR].forEach(function(x){g+='<path d="M'+x+' '+(ey+3)+' C'+(x-4.5)+' '+(ey-.2)+' '+(x-3)+' '+(ey-3.6)+' '+x+' '+(ey-1.4)+' C'+(x+3)+' '+(ey-3.6)+' '+(x+4.5)+' '+(ey-.2)+' '+x+' '+(ey+3)+'Z" fill="#FF3B6B"/>';});
+ /* brows */
+ var B=L.brows,bc=L.hair==='kel'?shade(skin,.45):hcD,by=ey-5;
+ if(B==='ince')g+='<path d="M40.5 '+by+' Q43.5 '+(by-1.2)+' 46.5 '+by+' M53.5 '+by+' Q56.5 '+(by-1.2)+' 59.5 '+by+'" fill="none" stroke="'+bc+'" stroke-width="1" stroke-linecap="round"/>';
+ if(B==='kalin')g+='<path d="M40 '+by+' Q43.5 '+(by-1.8)+' 47 '+by+' M53 '+by+' Q56.5 '+(by-1.8)+' 60 '+by+'" fill="none" stroke="'+bc+'" stroke-width="2.2" stroke-linecap="round"/>';
+ if(B==='kalkik')g+='<path d="M40.5 '+(by-.5)+' Q43.5 '+(by-3.5)+' 46.5 '+(by-1)+' M53.5 '+(by-1)+' Q56.5 '+(by-3.5)+' 59.5 '+(by-.5)+'" fill="none" stroke="'+bc+'" stroke-width="1.3" stroke-linecap="round"/>';
+ if(B==='catik')g+='<path d="M40.5 '+(by-1.6)+' L46.5 '+(by+.6)+' M59.5 '+(by-1.6)+' L53.5 '+(by+.6)+'" stroke="'+bc+'" stroke-width="1.8" stroke-linecap="round"/>';
+ /* nose */
+ var N=L.nose,ny=ey+4.2;
+ if(N==='nokta')g+='<ellipse cx="50" cy="'+ny+'" rx="1.2" ry=".9" fill="'+skD+'"/>';
+ if(N==='yuvarlak')g+='<circle cx="50" cy="'+ny+'" r="2.3" fill="'+shade(skin,.9)+'" stroke="'+skD+'" stroke-width=".6"/>';
+ if(N==='sivri')g+='<path d="M50 '+(ny-3.5)+' L48 '+(ny+1)+' L51 '+(ny+1)+'" fill="none" stroke="'+skD+'" stroke-width="1" stroke-linejoin="round"/>';
+ if(N==='buyuk')g+='<ellipse cx="50" cy="'+(ny+.5)+'" rx="3.4" ry="2.8" fill="'+shade(skin,.9)+'" stroke="'+skD+'" stroke-width=".7"/>';
+ if(N==='palyaco')g+='<circle cx="50" cy="'+ny+'" r="3" fill="#FF2D2D"/><circle cx="49" cy="'+(ny-1)+'" r=".9" fill="#fff" opacity=".7"/>';
+ /* mouth */
+ var M=L.mouth,my=ey+9;
+ if(M==='gulumse')g+='<path d="M45.5 '+my+' Q50 '+(my+3.4)+' 54.5 '+my+'" fill="none" stroke="'+ink+'" stroke-width="1.3" stroke-linecap="round"/>';
+ if(M==='sirit')g+='<path d="M44.5 '+(my-.6)+' L55.5 '+(my-.6)+' Q55 '+(my+4.6)+' 50 '+(my+4.6)+' Q45 '+(my+4.6)+' 44.5 '+(my-.6)+'Z" fill="#5a1010" stroke="'+ink+'" stroke-width=".8"/><rect x="45.6" y="'+(my-.4)+'" width="8.8" height="1.6" fill="#fff"/>';
+ if(M==='saskin')g+='<ellipse cx="50" cy="'+(my+1)+'" rx="2" ry="2.6" fill="#5a1010" stroke="'+ink+'" stroke-width=".8"/>';
+ if(M==='ciddi')g+='<path d="M46 '+(my+.6)+' L54 '+(my+.6)+'" stroke="'+ink+'" stroke-width="1.3" stroke-linecap="round"/>';
+ if(M==='dil')g+='<path d="M45.5 '+my+' Q50 '+(my+3)+' 54.5 '+my+'" fill="none" stroke="'+ink+'" stroke-width="1.3" stroke-linecap="round"/><path d="M48 '+(my+1.6)+' Q48 '+(my+5.4)+' 50.5 '+(my+5.2)+' Q53 '+(my+5)+' 52.5 '+(my+1.4)+'Z" fill="#FF6B8A" stroke="#a33" stroke-width=".5"/>';
+ /* facial hair */
+ var F=L.beard,fc=L.hc==='rb'?'url(#'+id+'r)':hcD;
+ if(F==='biyik')g+='<path d="M44.5 '+(my-2.2)+' Q47 '+(my-4.6)+' 50 '+(my-2.8)+' Q53 '+(my-4.6)+' 55.5 '+(my-2.2)+' Q53 '+(my-1.2)+' 50 '+(my-2)+' Q47 '+(my-1.2)+' 44.5 '+(my-2.2)+'Z" fill="'+fc+'"/>';
+ if(F==='keci')g+='<path d="M47 '+(my+3.5)+' Q50 '+(my+9)+' 53 '+(my+3.5)+' Q50 '+(my+5)+' 47 '+(my+3.5)+'Z" fill="'+fc+'"/><path d="M45.5 '+(my-2)+' Q50 '+(my-4)+' 54.5 '+(my-2)+'" fill="none" stroke="'+fc+'" stroke-width="1.4"/>';
+ if(F==='sakal')g+='<path d="M34.5 33 C35 42 41 48.5 50 48.5 C59 48.5 65 42 65.5 33 C63 39 59 40.5 56 41 Q50 '+(my+5.5)+' 44 41 C41 40.5 37 39 34.5 33Z" fill="'+fc+'"/>';
+ if(F==='kirli')g+='<path d="M35.5 34 C36 42 42 48 50 48 C58 48 64 42 64.5 34 C62 41 57 43.5 50 43.5 C43 43.5 38 41 35.5 34Z" fill="'+fc+'" opacity=".35"/>';
+ if(F==='favori')g+='<rect x="34.6" y="25" width="2.6" height="10" rx="1.2" fill="'+fc+'"/><rect x="62.8" y="25" width="2.6" height="10" rx="1.2" fill="'+fc+'"/>';
+ if(ex==='bant')g+='<g transform="rotate(-25 58.5 37)"><rect x="54.5" y="35.4" width="8" height="3.2" rx="1.2" fill="#F4D3A8" stroke="#b08a5a" stroke-width=".5"/><rect x="57.4" y="35.4" width="2.2" height="3.2" fill="#e7bf8c"/></g>';
+ /* front hair */
+ var hf='';
+ if(hair==='kisa'||hair==='topuz'||hair==='mullet'||hair==='atkuyrugu'||hair==='dread')hf='<path d="M33.3 29 C33.3 17.5 40 13 50 13 C60 13 66.7 17.5 66.7 29 C63 23 57 20.3 50 20.3 C43 20.3 37 23 33.3 29Z" fill="'+hcol+'"/>';
+ if(hair==='yan'||hair==='uzun')hf='<path d="M32.8 31 C31.8 17 40.5 11.5 51 11.5 C61.5 11.5 68.2 17.5 67.2 31 C65 24 61 21 56 20 C52 23.5 44.5 25.5 37.5 24 C35.5 26 34 28.5 32.8 31Z" fill="'+hcol+'"/>';
+ if(hair==='kakul')hf='<path d="M32.8 31 C31.8 16 40.5 11 50 11 C59.5 11 68.2 16 67.2 31 L64 26.5 L60 25 L56 26.5 L52 24.5 L48 26.5 L44 25 L40 26.5 L36 25.5 Z" fill="'+hcol+'"/>';
+ if(hair==='kivircik'){[[36,24],[40,18],[45.5,14.5],[51.5,13.5],[57,15],[61.5,19],[64.5,24.5],[43,21],[50,19.5],[57,21]].forEach(function(d){hf+='<circle cx="'+d[0]+'" cy="'+d[1]+'" r="4.6" fill="'+hcol+'"/>';});}
+ if(hair==='afro')hf='<path d="M33 30 C32 19 40 15 50 16 C60 15 68 19 67 30 C63 25 57 23.5 50 23.5 C43 23.5 37 25 33 30Z" fill="'+hcol+'"/>';
+ if(hair==='sivri')hf='<path d="M33 29 L30.5 18 L37.5 20 L36.5 9.5 L43.5 15 L47 4.5 L52 13 L57 4.5 L59 15 L65 9.5 L63 20 L69.5 18 L67 29 C62 23 56 21 50 21 C44 21 38 23 33 29Z" fill="'+hcol+'"/>';
+ if(hair==='mohawk')hf='<path d="M46.5 21 L45 9 L48 11.5 L49 3 L51.5 9.5 L53.5 3.5 L54.2 11 L56.5 8.5 L54 21 Z" fill="'+hcol+'" stroke="'+hcD+'" stroke-width=".5"/>';
+ if(hair==='topuz')hf+='<circle cx="50" cy="9.5" r="5" fill="'+hcol+'"/><rect x="46.5" y="12.5" width="7" height="2" rx="1" fill="'+hcD+'"/>';
+ if(s==='robot'||s==='uzayli')hf=hair==='mohawk'?hf:'';
+ g+=hf;
+ /* wearables on the head */
+ if(has('earring'))g+='<circle cx="33.3" cy="36" r="1.8" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".5"/>';
+ if(has('glasses'))g+='<g fill="rgba(180,220,255,.22)" stroke="#111" stroke-width="1.2"><circle cx="'+eyeL+'" cy="'+ey+'" r="4.4"/><circle cx="'+eyeR+'" cy="'+ey+'" r="4.4"/></g><path d="M47.9 '+(ey-.4)+' Q50 '+(ey-1.8)+' 52.1 '+(ey-.4)+' M39.1 '+(ey-1)+' L34.5 '+(ey-2)+' M60.9 '+(ey-1)+' L65.5 '+(ey-2)+'" fill="none" stroke="#111" stroke-width="1.1"/>';
+ if(has('shades'))g+='<path d="M37.5 '+(ey-2.6)+' H62.5 L61.5 '+(ey+1.6)+' Q58 '+(ey+4.8)+' 53.5 '+(ey+2.2)+' L50 '+ey+' L46.5 '+(ey+2.2)+' Q42 '+(ey+4.8)+' 38.5 '+(ey+1.6)+' Z" fill="#111"/><path d="M40.5 '+(ey-1.4)+' L45 '+(ey-1.4)+'" stroke="#fff" stroke-opacity=".7" stroke-width="1" stroke-linecap="round"/>';
+ if(has('visor'))g+='<path d="M33 '+(ey-4)+' Q50 '+(ey-7.5)+' 67 '+(ey-4)+' L66 '+(ey+3)+' Q50 '+(ey+6.5)+' 34 '+(ey+3)+' Z" fill="#36F1FF" fill-opacity=".5" stroke="#B9FBFF" stroke-width="1"/>';
+ if(has('headband'))g+='<path d="M33.5 22.5 Q50 15 66.5 22.5 L66.8 26.5 Q50 19 33.2 26.5 Z" fill="'+c1+'" stroke="rgba(0,0,0,.4)" stroke-width=".6"/>';
+ if(has('cap')){g+='<path d="M32.5 27 Q32.5 11.5 50 11.5 Q67.5 11.5 67.5 27 Z" fill="'+c1+'" stroke="rgba(0,0,0,.45)" stroke-width="1"/><path d="M50 25.5 Q69 23.5 75.5 28 Q66 31 50 28.6 Z" fill="'+c2+'" stroke="rgba(0,0,0,.45)" stroke-width=".9"/><circle cx="50" cy="12" r="1.4" fill="'+c2+'"/>';if(has('capcrest')&&cl)g+=crestAt(46.6,14.6,.17);}
+ if(has('beanie'))g+='<path d="M32.8 26.5 Q32.8 10.5 50 10.5 Q67.2 10.5 67.2 26.5 Z" fill="'+c1+'" stroke="rgba(0,0,0,.45)" stroke-width="1"/><rect x="32" y="22" width="36" height="6" rx="2.2" fill="'+c2+'" stroke="rgba(0,0,0,.4)" stroke-width=".8"/><circle cx="50" cy="9.5" r="3.6" fill="'+c2+'" stroke="rgba(0,0,0,.35)" stroke-width=".7"/>';
+ if(has('crown'))g+='<path d="M38.5 20 L40.5 8 L45.5 14.5 L50 6 L54.5 14.5 L59.5 8 L61.5 20 Z" fill="url(#'+id+'g)" stroke="#9A6A00" stroke-width=".8"/><circle cx="50" cy="14" r="1.4" fill="#E30613"/><circle cx="43" cy="16.5" r="1" fill="#2F6BFF"/><circle cx="57" cy="16.5" r="1" fill="#00A651"/>';
+ g+='</g></g>';
+ if(frame==='fr_gold')g+='<circle cx="50" cy="50" r="46" fill="none" stroke="url(#'+id+'g)" stroke-width="6"/>';
+ else if(frame==='fr_neon')g+='<circle cx="50" cy="50" r="46" fill="none" stroke="#36F1FF" stroke-opacity=".35" stroke-width="8"/><circle cx="50" cy="50" r="46" fill="none" stroke="#B9FBFF" stroke-width="2.5"/>';
+ else if(frame==='fr_fire')g+='<circle cx="50" cy="50" r="46" fill="none" stroke="url(#'+id+'f)" stroke-width="6"/><path d="M22 18 Q24 10 30 8 Q27 14 31 17 Z M78 18 Q76 10 70 8 Q73 14 69 17 Z" fill="url(#'+id+'f)"/>';
+ else if(frame==='fr_legend')g+='<circle cx="50" cy="50" r="46" fill="none" stroke="url(#'+id+'g)" stroke-width="7"/><circle cx="50" cy="50" r="41.5" fill="none" stroke="#B9FBFF" stroke-opacity=".7" stroke-width="1.2" stroke-dasharray="2 3"/>';
+ else g+='<circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="2"/>';
+ return g+'</svg>';
+}
+/* style pieces bought in the store unlock options in the editor */
+var STYLEITEMS=[
+ {id:'h_atkuyrugu',p:400,req:{lvl:2}},{id:'h_topuz',p:450,req:{lvl:3}},{id:'h_afro',p:550,req:{lvl:3}},{id:'h_sivri',p:550,req:{lvl:4}},{id:'h_mohawk',p:650,req:{lvl:4}},{id:'h_mullet',p:700,req:{lvl:5}},{id:'h_dread',p:750,req:{lvl:6}},
+ {id:'hc_pembe',p:400,req:{lvl:3}},{id:'hc_mavi',p:400,req:{lvl:3}},{id:'hc_yesil',p:450,req:{lvl:4}},{id:'hc_mor',p:450,req:{lvl:4}},{id:'hc_rb',p:1500,req:{lvl:10,wins:20}},
+ {id:'e_yildiz',p:800,req:{lvl:6}},{id:'e_kalp',p:800,req:{lvl:6}},{id:'n_palyaco',p:600,req:{lvl:5}},{id:'m_dil',p:500,req:{lvl:4}},
+ {id:'x_bant',p:300,req:{lvl:2}},{id:'x_boya',p:700,req:{lvl:5}},
+ {id:'s_top',p:1200,req:{lvl:8}},{id:'s_robot',p:1600,req:{lvl:10,wins:10}},{id:'s_alien',p:2000,req:{lvl:12,badges:5}}];
+(function(){var partOf={};Object.keys(LOOKOPT).forEach(function(part){LOOKOPT[part].forEach(function(o){if(o[2])partOf[o[2]]={part:part,v:o[0],n:o[1]};});});
+ var label={hair:' saç',hc:' saç rengi',eyes:' gözler',nose:' burun',mouth:'',extra:'',shape:''};
+ STYLEITEMS.forEach(function(s){var q=partOf[s.id];STORE.unshift({id:s.id,cat:'style',n:q.n+(label[q.part]||''),p:s.p,req:s.req,part:q.part,v:q.v});});
+ STORE.sort(function(a,b){var o={style:0,head:1,acc:2,pat:3,frame:4};return (o[a.cat]-o[b.cat])||(a.p-b.p);});})();
 
 var KITC=['#E30613','#A90432','#F58220','#F5D90A','#FFFFFF','#111111','#0A1F5C','#2F6BFF','#6CACE4','#00843D','#5B2C83','#8E1F2F'];
 var PATS=[['solid','Düz',0],['stripes','Dikey çizgili',0],['halves','İkiye bölünmüş',0],['hoops','Yatay çizgili','pat_hoops'],['sash','Çapraz şerit','pat_sash']];
@@ -1691,7 +1874,7 @@ var BADGES=[
  ['vet','Veteran','10 maç oyna',function(p){return p.st.played>=10;}],
  ['kol','Koleksiyoncu','Mağazadan 3 ürün al',function(p){return p.owned.length>=3;}]];
 function uid(){try{if(crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'p'+Date.now().toString(36)+rnd(1e9).toString(36);}
-function newProfile(){return {v:1,id:uid(),created:Date.now(),name:'',club:'gs',kit:{pattern:'stripes',c1:'#E30613',c2:'#FFFFFF',num:'10',sh:'#FFFFFF',skin:'#F2C9A0'},coins:100,xp:0,owned:[],eq:{acc:[],frame:null},badges:[],st:{played:0,won:0,lost:0,correct:0,fastMs:0,fastName:'',streak:0,bestStreak:0,trCorrect:0,clubs:{}},hist:[]};}
+function newProfile(){return {v:1,id:uid(),created:Date.now(),name:'',club:'gs',kit:{pattern:'stripes',c1:'#E30613',c2:'#FFFFFF',num:'10',sh:'#FFFFFF',skin:'#F2C9A0'},coins:100,xp:0,owned:[],eq:{acc:[],frame:null},look:Object.assign({},LOOKDEF),badges:[],st:{played:0,won:0,lost:0,correct:0,fastMs:0,fastName:'',streak:0,bestStreak:0,trCorrect:0,clubs:{}},hist:[]};}
 function loadProfile(){try{var s=localStorage.getItem(PKEY);if(s){var p=JSON.parse(s);if(p&&p.v===1)PROF=p;}}catch(e){}
  /* a favourite club that left our leagues (relegated) is cleared; the player just picks a new one */
  if(PROF&&PROF.club&&!CLUBS[PROF.club]){PROF.oldClub=PROF.club;PROF.club='';}}
@@ -1786,7 +1969,7 @@ function openEditor(create){
  sel.value=ED.club;renderEditor();show('s-pedit');if(!$('pe-name').value)focusIn('pe-name');
 }
 function renderEditor(){
- $('pe-avatar').innerHTML=avatarSVG(ED,120);
+ $('pe-avatar').innerHTML=avatarSVG(ED,150);renderLook();
  $('pe-pat').innerHTML=PATS.map(function(t){var locked=t[2]&&ED.owned.indexOf(t[2])<0;return '<button type="button" class="chipbtn'+(locked?' locked':'')+'" data-pat="'+t[0]+'" aria-pressed="'+(ED.kit.pattern===t[0])+'"'+(locked?' data-lock="1"':'')+'>'+(locked?'🔒 ':'')+t[1]+'</button>';}).join('');
  $('pe-sh').innerHTML=SHC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Şort '+c+'" aria-pressed="'+((ED.kit.sh||ED.kit.c2)===c)+'"></button>';}).join('');
  $('pe-skin').innerHTML=SKINC.map(function(c){return '<button type="button" class="swb" style="background:'+c+'" data-c="'+c+'" aria-label="Kafa '+c+'" aria-pressed="'+((ED.kit.skin||SKINC[0])===c)+'"></button>';}).join('');
@@ -1797,6 +1980,31 @@ $('pe-pat').addEventListener('click',function(e){var b=e.target.closest('button'
 $('pe-sh').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.sh=b.dataset.c;renderEditor();});
 $('pe-skin').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;ED.kit.skin=b.dataset.c;renderEditor();});
 $('pe-club').addEventListener('change',function(){ED.club=this.value;renderEditor();});
+var LOOKNAMES={shape:'Kafa şekli',hair:'Saç',hc:'Saç rengi',eyes:'Gözler',brows:'Kaşlar',nose:'Burun',mouth:'Ağız',beard:'Sakal / bıyık',extra:'Yüz detayı'};
+var LOOKZOOM={shape:'14 0 72 62',hair:'14 -4 72 62',eyes:'30 18 40 30',brows:'30 16 40 30',nose:'34 22 32 26',mouth:'32 26 36 28',beard:'26 18 48 38',extra:'28 18 44 32'};
+function lookLocked(o){return o[2]&&ED.owned.indexOf(o[2])<0;}
+function renderLook(){
+ var L=lookOf(ED),h='';
+ Object.keys(LOOKOPT).forEach(function(part){
+  h+='<div class="field"><span class="small muted">'+LOOKNAMES[part]+'</span><div class="lk-row" data-part="'+part+'">';
+  LOOKOPT[part].forEach(function(o){var lk=lookLocked(o),on=L[part]===o[0];
+   if(part==='hc'){h+='<button type="button" class="lkc'+(lk?' locked':'')+'" style="background:'+(o[0]==='rb'?'linear-gradient(135deg,#FF3B3B,#FFB800,#3DDC97,#3BA3FF,#9B5DE5)':o[0])+'" data-v="'+o[0]+'"'+(lk?' data-lock="1"':'')+' aria-label="'+o[1]+'" aria-pressed="'+on+'"></button>';return;}
+   var ov={look:{},acc:[],frame:null};ov.look[part]=o[0];if(part!=='hair'&&part!=='shape'&&L.hair==='afro')ov.look.hair='kisa';
+   var svg=avatarSVG(ED,62,ov).replace('viewBox="0 0 100 100"','viewBox="'+LOOKZOOM[part]+'"');
+   h+='<button type="button" class="lkb'+(lk?' locked':'')+'" data-v="'+o[0]+'"'+(lk?' data-lock="1"':'')+' aria-pressed="'+on+'">'+svg+(lk?'<span class="lk-lock">🔒</span>':'')+'<span>'+o[1]+'</span></button>';});
+  h+='</div></div>';});
+ var sc={};document.querySelectorAll('#pe-look .lk-row').forEach(function(r){sc[r.dataset.part]=r.scrollLeft;});
+ $('pe-look').innerHTML=h;
+ document.querySelectorAll('#pe-look .lk-row').forEach(function(r){if(sc[r.dataset.part])r.scrollLeft=sc[r.dataset.part];});
+}
+$('pe-look').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var part=b.parentNode.dataset.part;
+ if(b.dataset.lock){var o=LOOKOPT[part].filter(function(x){return x[0]===b.dataset.v;})[0],it=STORE.filter(function(x){return x.id===o[2];})[0];gtoast(o[1]+' mağazada · '+it.p+' jeton'+(it.req&&it.req.lvl?' · Seviye '+it.req.lvl:''));return;}
+ ED.look=lookOf(ED);ED.look[part]=b.dataset.v;renderEditor();});
+$('pe-rnd').onclick=function(){var l={};Object.keys(LOOKOPT).forEach(function(part){var ok=LOOKOPT[part].filter(function(o){return !lookLocked(o);});l[part]=ok[rnd(ok.length)][0];});
+ if(rnd(3)===0)l.beard='yok';ED.look=l;ED.kit.skin=SKINC[rnd(SKINC.length)];renderEditor();};
+document.querySelector('.pe-tabs').addEventListener('click',function(e){var b=e.target.closest('.pe-tab');if(!b)return;
+ document.querySelectorAll('.pe-tab').forEach(function(x){x.setAttribute('aria-selected',x===b?'true':'false');});
+ $('pe-char').hidden=b.dataset.t!=='char';$('pe-kit').hidden=b.dataset.t!=='kit';});
 $('pe-num').addEventListener('input',function(){this.value=this.value.replace(/[^0-9]/g,'').slice(0,2);ED.kit.num=this.value;renderEditor();});
 $('pe-save').onclick=function(){
  var n=$('pe-name').value.trim().slice(0,14);if(!n){gtoast('Bir kullanıcı adı yaz');$('pe-name').focus();return;}
@@ -1823,10 +2031,11 @@ $('st-grid').addEventListener('click',function(e){
  var b=e.target.closest('button');if(!b||b.disabled)return;
  if(b.dataset.buy){var it=STORE.filter(function(x){return x.id===b.dataset.buy;})[0];if(reqLeft(it)){gtoast('Kilitli: '+reqLeft(it));return;}if(PROF.coins<it.p){gtoast('Yeterli jetonun yok, maç oynayarak kazanabilirsin');return;}
   PROF.coins-=it.p;PROF.owned.push(it.id);
-  if(it.cat==='acc'||it.cat==='head')eqToggle(it.id);else if(it.cat==='frame')PROF.eq.frame=it.id;else if(it.cat==='pat')PROF.kit.pattern=it.pat;
+  if(it.cat==='style'){PROF.look=lookOf(PROF);PROF.look[it.part]=it.v;}else if(it.cat==='acc'||it.cat==='head')eqToggle(it.id);else if(it.cat==='frame')PROF.eq.frame=it.id;else if(it.cat==='pat')PROF.kit.pattern=it.pat;
   var nb=grantBadges();saveProfile();renderStore();gtoast(it.n+' senin!'+(nb.length?' · Yeni rozet: '+nb.join(', '):''));}
  else if(b.dataset.eq){var it2=STORE.filter(function(x){return x.id===b.dataset.eq;})[0];
-  if(it2.cat==='acc'||it2.cat==='head'){eqToggle(it2.id);}
+  if(it2.cat==='style'){PROF.look=lookOf(PROF);PROF.look[it2.part]=PROF.look[it2.part]===it2.v?LOOKDEF[it2.part]:it2.v;}
+  else if(it2.cat==='acc'||it2.cat==='head'){eqToggle(it2.id);}
   else if(it2.cat==='frame')PROF.eq.frame=PROF.eq.frame===it2.id?null:it2.id;
   else if(it2.cat==='pat')PROF.kit.pattern=PROF.kit.pattern===it2.pat?'stripes':it2.pat;
   saveProfile();renderStore();}
@@ -1836,7 +2045,7 @@ var DEMO_ALL_FRIENDS=true; /* demo period: everyone who has a profile is automat
 var FR={list:[],loaded:false,busy:false,syncT:null};
 function cloud(){return window.OO_CLOUD||null;}
 function frCode(){var a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<6;i++)s+=a[rnd(a.length)];return s;}
-function cardOf(p){var s=p.st||{},so=s.solo||{best:{}};return {n:p.name,c:p.club,k:p.kit,eq:p.eq,x:p.xp,pl:s.played||0,w:s.won||0,co:s.correct||0,fm:s.fastMs||0,fn:s.fastName||'',b:(p.badges||[]).length,sb:Math.max(so.best.kolay||0,so.best.orta||0,so.best.zor||0),pg:(s.party||{}).games||0,code:p.code||''};}
+function cardOf(p){var s=p.st||{},so=s.solo||{best:{}};return {n:p.name,c:p.club,k:p.kit,eq:p.eq,lk:p.look||null,x:p.xp,pl:s.played||0,w:s.won||0,co:s.correct||0,fm:s.fastMs||0,fn:s.fastName||'',b:(p.badges||[]).length,sb:Math.max(so.best.kolay||0,so.best.orta||0,so.best.zor||0),pg:(s.party||{}).games||0,code:p.code||''};}
 function profSync(){
  var C=cloud();if(!C||!PROF)return;
  C.ready().then(function(c){
@@ -1882,7 +2091,7 @@ function frAdd(code){
   return Promise.all([c.db.ref('friends/'+c.uid+'/'+fid).set(c.TS),c.db.ref('friends/'+fid+'/'+c.uid).set(c.TS)]).then(function(){gtoast('Arkadaş eklendi!');$('fr-code').value='';frOpen(true);});});
  }).catch(function(){gtoast('Sunucuya ulaşılamadı, internetini kontrol et');});
 }
-function frCardSVG(f,size){var k=f.card||{};return avatarSVG({kit:k.k||{pattern:'stripes',c1:'#888',c2:'#fff',num:'?'},eq:k.eq||{acc:[],frame:null},club:k.c},size);}
+function frCardSVG(f,size){var k=f.card||{};return avatarSVG({kit:k.k||{pattern:'stripes',c1:'#888',c2:'#fff',num:'?'},eq:k.eq||{acc:[],frame:null},look:k.lk||null,club:k.c},size);}
 function frRender(){
  var l=$('fr-list');
  if(!FR.list.length){l.innerHTML='<p class="small muted" style="margin:0">Henüz arkadaşın yok. Kodunu paylaş ya da bir arkadaşının kodunu ekle.</p>';return;}
@@ -1935,7 +2144,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.13.0';
+var APP_VERSION='0.14.0';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
