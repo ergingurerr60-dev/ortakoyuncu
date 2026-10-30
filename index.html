@@ -2462,8 +2462,7 @@ function genAv(name,club,seed){var h=hashStr(name+'|'+(seed||'')),pick=function(
 function duelAvs(){
  if(!G.names||!G.names[0]||!G.names[1]||!G.picks||!G.picks[0]||!G.picks[1])return null;
  if(ON.active){var a=ON.avs||[];return [a[0]||genAv(G.names[0],G.picks[0]),a[1]||genAv(G.names[1],G.picks[1])];}
- if(!G.cpuSeed)G.cpuSeed=String(Date.now());
- return [avCard()||genAv(G.names[0],G.picks[0]),genAv(G.names[1],G.picks[1],G.cpuSeed)];}
+ return null;}
 function rsAvs(w){var b=$('rs-avs');if(!b)return;var avs=duelAvs();if(!avs){b.innerHTML='';return;}
  b.innerHTML=[0,1].map(function(i){var cls=w===null||w===undefined?'sad':(i===w?'cheer':'sad');
   return '<div class="rs-av '+cls+'">'+avatarSVG(avs[i],170,{card:true,mini:true})+'<span>'+esc(G.names[i])+'</span>'+'</div>';}).join('');}
@@ -2507,7 +2506,7 @@ function cloudBoot(){var c=cloud();if(!c)return;var linking=false;try{linking=!!
 
 /* keyboard-aware layout: shrink the active screen to the space above the keyboard instead of letting iOS pan the page */
 (function(){var vv=window.visualViewport;if(!vv)return;var root=document.documentElement,last=-1;
- function upd(){var kb=Math.round(window.innerHeight-vv.height);if(kb<90)kb=0;
+ function upd(){var a0=document.activeElement,typing=a0&&/^(INPUT|TEXTAREA)$/.test(a0.tagName)&&a0.id!=='kbkeep'&&!a0.disabled;var kb=Math.round(window.innerHeight-vv.height);if(kb<90||!typing)kb=0;kb=Math.min(kb,Math.round(window.innerHeight*.6));
   if(kb!==last){last=kb;root.style.setProperty('--kb',kb+'px');document.body.classList.toggle('kb-open',kb>0);}
   if(window.scrollY||document.documentElement.scrollTop)window.scrollTo(0,0);
   if(!kb)return;var a=document.activeElement;if(!a||!/^(INPUT|TEXTAREA)$/.test(a.tagName)||a.id==='kbkeep')return;
@@ -2515,7 +2514,7 @@ function cloudBoot(){var c=cloud();if(!c)return;var linking=false;try{linking=!!
   if(r.bottom>room)sc.scrollTop+=r.bottom-room;else if(r.top<sr.top+8)sc.scrollTop-=sr.top+8-r.top;}
  vv.addEventListener('resize',upd);vv.addEventListener('scroll',upd);
  document.addEventListener('focusin',function(){setTimeout(upd,50);setTimeout(upd,300);setTimeout(upd,600);});
- document.addEventListener('focusout',function(){setTimeout(upd,150);});})();
+ document.addEventListener('focusout',function(){setTimeout(upd,150);setTimeout(upd,500);});window.addEventListener('resize',upd);document.addEventListener('visibilitychange',upd);})();
 
 var KITC=['#E30613','#A90432','#F58220','#F5D90A','#FFFFFF','#111111','#0A1F5C','#2F6BFF','#6CACE4','#00843D','#5B2C83','#8E1F2F'];
 var PATS=[['solid','Düz',0],['stripes','Dikey çizgili',0],['halves','İkiye bölünmüş',0],['hoops','Yatay çizgili','pat_hoops'],['sash','Çapraz şerit','pat_sash']];
@@ -2816,7 +2815,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.28.2';
+var APP_VERSION='0.28.3';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -3376,9 +3375,9 @@ function bridgeFinish(ok){
 var CA=null;
 function careerStart(){CA={round:0,total:0,correct:0,used:{}};careerNext();show('s-career');}
 function careerNext_old(){
- var pool=PLAYERS.filter(function(p){return p.clubs.length>=4&&p.fame>=30&&!CA.used[p.key];});
+ var pool=PLAYERS.filter(function(p){return p.clubs.length>=4&&p.fame>=30&&!CA.used[p.key]&&!isRecentP(p.key);});
  if(!pool.length)pool=PLAYERS.filter(function(p){return p.clubs.length>=3;});
- var t=pool[rnd(pool.length)];CA.used[t.key]=1;CA.round++;CA.t=t;CA.order=t.clubs.slice().sort(function(){return Math.random()-.5;});CA.shown=1;CA.done=false;
+ var t=pool[rnd(pool.length)];CA.used[t.key]=1;notePlayer(t.key);CA.round++;CA.t=t;CA.order=t.clubs.slice().sort(function(){return Math.random()-.5;});CA.shown=1;CA.done=false;
  $('ca-next').hidden=true;$('ca-hint').hidden=false;$('ca-in').disabled=false;clearAns('ca-in','ca-sugg');$('ca-msg').textContent='';careerRender(true);focusIn('ca-in');
 }
 function careerPts(){var n=CA.shown,max=CA.order.length;if(n>max)return 50;return Math.max(100,600-100*n);}
@@ -3485,15 +3484,15 @@ function pickPair(d,need,used,allowed,rng){
  return null;
 }
 /* Klasik: the second club */
-function soloRival(mine){
+function soloRival_c(mine){
  var d=SOLO.diff;
  if(d==='zor')return soloRival_old(mine);
- var need=d==='kolay'?3:2,ids=poolClubs(d).filter(function(id){return id!==mine;});
- for(var n=need;n>=1;n--){var c=ids.filter(function(id){return knownCount(d,mine,id)>=n;}),fresh=c.filter(function(id){return !SOLO.used[mine+'|'+id];});if(fresh.length)c=fresh;if(c.length)return c[rnd(c.length)];}
+ var need=d==='kolay'?3:2,ids=poolClubs(d).filter(function(id){return id!==mine;}),inP=inPool(d,mine),cntF=function(id){return inP?knownCount(d,mine,id):knownPlayers(d,mine,id).length;};
+ for(var n=need;n>=1;n--){var c=ids.filter(function(id){return cntF(id)>=n;}),fresh=c.filter(function(id){return !SOLO.used[mine+'|'+id];});if(fresh.length)c=fresh;if(c.length)return c[rnd(c.length)];}
  return soloRival_old(mine);
 }
 /* Grid */
-function genGrid(minC,rng,d){
+function genGrid_c(minC,rng,d){
  d=d||SOLO.diff;if(d==='zor')return genGrid_old(minC,rng);
  rng=rng||Math.random;var pool=poolClubs(d,d==='kolay'?0:50);
  for(var need=2;need>=1;need--)for(var t=0;t<3000;t++){var p=pool.slice(),pick=[];for(var k=0;k<6;k++)pick.push(p.splice(Math.floor(rng()*p.length),1)[0]);var R=pick.slice(0,3),C=pick.slice(3),ok=true;
@@ -3507,7 +3506,7 @@ function genGridFrom(big,minC,d){
  return null;
 }
 /* Köprü */
-function bridgeFind(){
+function bridgeFind_c(){
  var d=SOLO.diff;if(d==='zor')return bridgeFind_old();
  var big=poolClubs(d,d==='kolay'?0:60);
  for(var pass=0;pass<2;pass++)for(var t=0;t<700;t++){var a=big[rnd(big.length)],b=big[rnd(big.length)];if(a===b||CLUBS[a].l===CLUBS[b].l)continue;
@@ -3518,16 +3517,16 @@ function bridgeFind(){
 /* Kariyer */
 function careerNext(){
  var d=SOLO.diff,minE=d==='kolay'?70:d==='orta'?35:0;
- var pool=d==='zor'?null:PLAYERS.filter(function(p){return p.clubs.length>=4&&effFame(p)>=minE&&!CA.used[p.key]&&p.clubs.filter(function(c){return inPool(d,c);}).length>=3;});
+ var pool=d==='zor'?null:PLAYERS.filter(function(p){return p.clubs.length>=4&&effFame(p)>=minE&&!CA.used[p.key]&&!isRecentP(p.key)&&p.clubs.filter(function(c){return inPool(d,c);}).length>=3;});
  if(!pool||pool.length<5)return careerNext_old();
- var t=pool[rnd(pool.length)];CA.used[t.key]=1;CA.round++;CA.t=t;
+ var t=pool[rnd(pool.length)];CA.used[t.key]=1;notePlayer(t.key);CA.round++;CA.t=t;
  var order=t.clubs.slice().sort(function(){return Math.random()-.5;});
  if(d==='kolay')order.sort(function(x,y){return (inPool('kolay',x)?1:0)-(inPool('kolay',y)?1:0);});/* big clubs revealed last, so the first clues still make you think */
  CA.order=order;CA.shown=1;CA.done=false;
  $('ca-next').hidden=true;$('ca-hint').hidden=false;$('ca-in').disabled=false;clearAns('ca-in','ca-sugg');$('ca-msg').textContent='';careerRender(true);focusIn('ca-in');
 }
 /* Zamana Karşı */
-function taPair(){var d=SOLO.diff;if(d==='zor')return taPair_old();return pickPair(d,2,TA.used)||taPair_old();}
+function taPair_c(){var d=SOLO.diff;if(d==='zor')return taPair_old();return pickPair(d,2,TA.used)||taPair_old();}
 /* Günün Meydan Okuması: same for everyone, gentle start then a step up */
 function dailyPairs(k){
  var rng=mulberry(hashStr('ortak-oyuncu:v2:'+k)),used={},out=[];
@@ -3535,7 +3534,7 @@ function dailyPairs(k){
  return out.length===5?out:dailyPairs_old(k);
 }
 /* Sonuna Kadar: the tier follows the chosen difficulty, zor still ramps up */
-function skPick(){
+function skPick_c(){
  var d=SOLO.diff,n=SK.n,t=d==='kolay'?'kolay':d==='orta'?(n<8?'kolay':'orta'):(n<5?'kolay':n<15?'orta':'zor');
  for(var tries=0;tries<400;tries++){
   var pr=pickPair(t,t==='zor'?1:2,{},null);if(!pr)break;var a=pr[0],b=pr[1],k=a<b?a+b:b+a;if(SK.used[k])continue;
@@ -3545,6 +3544,20 @@ function skPick(){
  }
  return skPick_old();
 }
+
+/* recently used clubs/players are remembered (also across sessions) so single-player modes keep rotating */
+var RECENT=(function(){try{return JSON.parse(localStorage.getItem('oo-recent')||'[]');}catch(e){return [];}})(),RECENTP=(function(){try{return JSON.parse(localStorage.getItem('oo-recentp')||'[]');}catch(e){return [];}})();
+function recentN(){return SOLO.diff==='kolay'?10:18;}
+function isRecent(c){var i=RECENT.indexOf(c);return i>-1&&i<recentN();}
+function noteClubs(a){(a||[]).forEach(function(c){if(!c)return;var i=RECENT.indexOf(c);if(i>-1)RECENT.splice(i,1);RECENT.unshift(c);});RECENT=RECENT.slice(0,40);try{localStorage.setItem('oo-recent',JSON.stringify(RECENT));}catch(e){}}
+function isRecentP(k){return RECENTP.indexOf(k)>-1;}
+function notePlayer(k){var i=RECENTP.indexOf(k);if(i>-1)RECENTP.splice(i,1);RECENTP.unshift(k);RECENTP=RECENTP.slice(0,80);try{localStorage.setItem('oo-recentp',JSON.stringify(RECENTP));}catch(e){}}
+function fresher(gen,clubsOf,tries){var best=null,bs=1e9;for(var i=0;i<tries;i++){var r=gen();if(!r)continue;var sc=clubsOf(r).filter(isRecent).length;if(sc<bs){bs=sc;best=r;}if(!sc)break;}if(best)noteClubs(clubsOf(best));return best;}
+function soloRival(mine){return fresher(function(){return soloRival_c(mine);},function(r){return [r];},8);}
+function taPair(){return fresher(taPair_c,function(p){return p;},8);}
+function genGrid(minC,rng,d){if(rng)return genGrid_c(minC,rng,d);return fresher(function(){return genGrid_c(minC,null,d);},function(g){return g.R.concat(g.C);},6);}
+function bridgeFind(){return fresher(bridgeFind_c,function(b){return [b.a,b.b];},6);}
+function skPick(){return fresher(skPick_c,function(q){return [q.a,q.b];},5);}
 /* Çok oyunculu */
 function pPair(){var d=PT.st.cfg.diff;if(d==='zor')return pPair_old();return pickPair(d,d==='kolay'?3:2,PT.used,pAllowed())||pPair_old();}
 function pPairMin(min){var d=PT.st.cfg.diff;if(d==='zor')return pPairMin_old(min);return pickPair(d,d==='kolay'?5:4,PT.used,pAllowed())||pPairMin_old(min);}
@@ -3555,7 +3568,7 @@ function xoNext(){
  st.xo={R:g.R,C:g.C,cells:[null,null,null,null,null,null,null,null,null],turn:st.players[(st.r-1)%2].id,tl:pMoveT(st),k:0,last:null};st.res=null;st.ph='xo';pCommit();
 }
 /* in kolay / orta the club list only offers clubs that fit the level */
-function pickAllowed(id){return !SOLO.active||SOLO.daily||inPool(SOLO.diff,id);}
+function pickAllowed(id){return true;}
 /* one difficulty switch on the mode list, shared by every single-player mode */
 function mdDiffRender(){}
 /* small level picker shown when a mode without its own setup screen is opened */
