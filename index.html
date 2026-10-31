@@ -129,16 +129,16 @@ button.back.corner{position:absolute;top:calc(16px + env(safe-area-inset-top,0px
 #s-grid{gap:12px}
 body.kb-open #s-grid.screen.on{display:flex;flex-direction:column;gap:8px;padding-top:6px;overflow:hidden}
 body.kb-open #s-grid > h2,body.kb-open #s-grid > p,body.kb-open #s-grid .pf-top,body.kb-open #gx-pair{display:none}
-body.kb-open #s-grid .gridx{flex:1 1 auto;min-height:0;grid-template-rows:auto repeat(3,minmax(0,1fr));gap:6px}
+body.kb-open #s-grid .gridx{flex:0 1 auto;min-height:0;grid-template-rows:auto repeat(3,minmax(0,76px));gap:6px}
 body.kb-open #s-grid .gc{min-height:0}
 body.kb-open #s-grid .gh{min-height:0;padding:2px 0}
 body.kb-open #s-grid .gh svg,body.kb-open #s-grid .gh img{flex:none;width:24px!important;height:26px!important}
 body.kb-open #s-grid .gh span{line-height:1.05}
 body.kb-open #s-grid .gxp{flex:none;position:relative;gap:5px;padding:6px;border-radius:14px}
 body.kb-open #gx-in{height:44px;border-radius:10px;padding:0 12px}
-body.kb-open #s-grid .sugg{height:var(--sgh2,138px);gap:5px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
+body.kb-open #s-grid .sugg:empty{display:none}
+body.kb-open #s-grid .sugg{height:var(--sgh2,112px);gap:5px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
 body.kb-open #s-grid .sugg::-webkit-scrollbar{display:none}
-body.kb-open #s-grid .sugg:empty::before{content:'Yazmaya başla, oyuncular burada alt alta çıkar';display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:13px;text-align:center;border:1px dashed var(--line);border-radius:12px}
 body.kb-open #s-grid .sugg button{min-height:42px;flex:0 0 auto;font-size:16px;padding:0 14px}
 body.kb-open #s-grid #gx-msg{position:absolute;left:6px;right:6px;bottom:6px;min-height:0!important;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:center;pointer-events:none}
 body.kb-open #s-grid #gx-msg:empty{display:none}
@@ -766,7 +766,6 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 <section id="s-grid" class="screen scrolly">
   <div class="pf-top"><button class="back" id="gx-back" type="button">‹ Modlar</button><div style="display:flex;gap:8px;align-items:center"><span class="coinpill" id="gx-stat"></span><button class="ghost gx-endb" id="gx-end" type="button">Bitir</button></div></div>
   <h2 class="cond" style="margin:0;font-size:38px;line-height:1">GRID</h2>
-  <p class="small muted" style="margin:0">Her kareye, satırındaki ve sütunundaki iki kulüpte de oynamış bir futbolcu yaz. Bir futbolcu bir kez kullanılır.</p>
   <div class="gridx" id="gx"></div>
   <div class="gxp" id="gx-panel" hidden>
     <div class="small muted" id="gx-pair"></div>
@@ -2530,7 +2529,7 @@ function cloudBoot(){var c=cloud();if(!c)return;var linking=false;try{linking=!!
   if(window.scrollY||document.documentElement.scrollTop)window.scrollTo(0,0);
   if(!kb)return;var a=document.activeElement;if(!a||!/^(INPUT|TEXTAREA)$/.test(a.tagName)||a.id==='kbkeep')return;
   var sc=a.closest('.screen');if(!sc)return;var r=a.getBoundingClientRect(),sr=sc.getBoundingClientRect(),room=sr.bottom-90;
-  if(sc.id==='s-grid'){sc.style.setProperty('--sgh2',(sr.height<420?94:sr.height<520?138:182)+'px');var pn=$('gx-panel'),pb=(pn&&!pn.hidden?pn.getBoundingClientRect().bottom:r.bottom)-sr.top+sc.scrollTop;sc.scrollTop=Math.max(0,Math.min(pb,r.bottom-sr.top+sc.scrollTop+48)-(sr.height-6));return;}
+  if(sc.id==='s-grid'){sc.style.setProperty('--sgh2',(sr.height<420?90:sr.height<520?112:160)+'px');var pn=$('gx-panel'),pb=(pn&&!pn.hidden?pn.getBoundingClientRect().bottom:r.bottom)-sr.top+sc.scrollTop;sc.scrollTop=Math.max(0,Math.min(pb,r.bottom-sr.top+sc.scrollTop+48)-(sr.height-6));return;}
   if(r.bottom>room)sc.scrollTop+=r.bottom-room;else if(r.top<sr.top+8)sc.scrollTop-=sr.top+8-r.top;}
  vv.addEventListener('resize',upd);vv.addEventListener('scroll',upd);
  document.addEventListener('focusin',function(){setTimeout(upd,50);setTimeout(upd,300);setTimeout(upd,600);});
@@ -2835,7 +2834,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.29.4';
+var APP_VERSION='0.29.5';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -3317,7 +3316,7 @@ function gridRender(){
  $('gx-stat').textContent=filled+'/9';
 }
 $('gx').addEventListener('click',function(e){var b=e.target.closest('.gc');if(!b||b.disabled||GX.over)return;GX.sel=+b.dataset.i;var r=Math.floor(GX.sel/3),c=GX.sel%3;
- $('gx-pair').innerHTML='<b>'+esc(CLUBS[GX.R[r]].n)+'</b> × <b>'+esc(CLUBS[GX.C[c]].n)+'</b> · ikisinde de oynamış kim?';$('gx-in').placeholder=CLUBS[GX.R[r]].n+' × '+CLUBS[GX.C[c]].n;$('gx-panel').hidden=false;$('gx-msg').textContent='';clearAns('gx-in','gx-sugg');gridRender();focusIn('gx-in');});
+ $('gx-pair').innerHTML='<b>'+esc(CLUBS[GX.R[r]].n)+'</b> × <b>'+esc(CLUBS[GX.C[c]].n)+'</b> · ikisinde de oynamış kim?';$('gx-panel').hidden=false;$('gx-msg').textContent='';clearAns('gx-in','gx-sugg');gridRender();focusIn('gx-in');});
 bindAnswer('gx-in','gx-sugg',function(name){
  if(GX.sel<0||GX.over)return;var r=Math.floor(GX.sel/3),c=GX.sel%3,a=GX.R[r],b=GX.C[c];
  var cands=resolve(name);if(!cands.length&&!String(name).trim())return;
