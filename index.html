@@ -567,11 +567,28 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 .mx-tag{font-size:17px;line-height:1.4;font-weight:500;color:rgba(255,255,255,.8);opacity:0;transition:opacity .5s}
 .mx-tag b{color:#fff}
 #s-intro.t4 .mx-tag{opacity:1}
-#btn-play,#btn-play2,#btn-party{width:100%;max-width:360px;min-height:54px;font-size:22px;border-radius:18px;opacity:0;transform:translateY(16px);transition:all .45s}
+#btn-play,#btn-play2,#btn-party,#btn-auction{width:100%;max-width:360px;min-height:54px;font-size:22px;border-radius:18px;opacity:0;transform:translateY(16px);transition:all .45s}
 #btn-play2{background:#2F6BFF;color:#fff;margin-top:-2px}
 #s-intro.t5 #btn-play2{opacity:1;transform:none;transition-delay:.12s}
 #btn-party{background:linear-gradient(90deg,#7C3AED,#2F6BFF);color:#fff;opacity:0;transform:translateY(16px);transition:all .45s}
 #s-intro.t5 #btn-party{opacity:1;transform:none;transition-delay:.24s}
+#btn-auction{background:linear-gradient(90deg,#E85D04,#B3122E);color:#fff;opacity:0;transform:translateY(16px);transition:all .45s}
+#s-intro.t5 #btn-auction{opacity:1;transform:none;transition-delay:.36s}
+.au-top{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:16px;padding:10px 14px;background:var(--surface);border:1px solid var(--line)}
+.au-top .lbl{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.06em}
+.au-top .big{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:40px;line-height:1}
+.au-top .who{font-weight:700;font-size:15px;text-align:right}
+.au-pl{display:flex;flex-wrap:wrap;gap:6px}
+.au-pl span{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--surface);border:1px solid var(--line)}
+.au-pl span.out{opacity:.45;text-decoration:line-through}
+.au-pl span.hi{border-color:#F5D90A;box-shadow:0 0 0 1px #F5D90A inset}
+.au-pl i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.au-bid{display:flex;flex-direction:column;gap:10px}
+.au-step{display:flex;align-items:center;justify-content:center;gap:14px}
+.au-step button{width:56px;height:56px;border-radius:50%;font-size:30px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--text,#fff)}
+.au-step b{font-family:'Barlow Condensed',sans-serif;font-size:56px;min-width:70px;text-align:center;line-height:1}
+.au-prog{height:8px;border-radius:99px;background:var(--surface);overflow:hidden}
+.au-prog i{display:block;height:100%;background:linear-gradient(90deg,#22C55E,#F5D90A);transition:width .3s}
 #s-intro.t5 #btn-play{opacity:1;transform:none;animation:pulse 1.8s 1s infinite}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,217,10,.5)}70%{box-shadow:0 0 0 18px rgba(245,217,10,0)}100%{box-shadow:0 0 0 0 rgba(245,217,10,0)}}
 .mx-hint{font-size:12px;color:rgba(255,255,255,.55);opacity:0;transition:opacity .5s}
@@ -613,6 +630,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
     <button class="cta" id="btn-play">TEK KİŞİLİK OYNA</button>
     <button class="cta" id="btn-play2">1V1 DÜELLO</button>
     <button class="cta" id="btn-party">ÇOK OYUNCULU</button>
+    <button class="cta" id="btn-auction">AÇIK ARTIRMA</button>
     <div class="mx-hint">Ortadaki karta dokun, yeni eşleşme çevrilsin · <span id="app-ver"></span></div>
   </div>
 </section>
@@ -720,7 +738,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <h3 class="sec">OYUNCULAR <span id="pl-count" class="small muted"></span></h3><div id="pl-list" class="hist"></div>
   <h3 class="sec">AYARLAR <span id="pl-who" class="small muted" style="font-family:Barlow,sans-serif;letter-spacing:0"></span></h3>
   <div id="pl-cfg" style="display:flex;flex-direction:column;gap:12px">
-  <div class="field"><span class="small muted">Oyun modu</span><div class="seg" id="pl-mode"><button type="button" class="segb" data-g="klasik"><b>KLASİK</b><small>2-8 kişi</small></button><button type="button" class="segb" data-g="pinpon"><b>PİNPON</b><small>2 kişi</small></button><button type="button" class="segb" data-g="xox"><b>XOX</b><small>2 kişi</small></button></div><span class="small muted" id="pl-mdesc"></span></div>
+  <div class="field"><span class="small muted">Oyun modu</span><div class="seg" id="pl-mode"><button type="button" class="segb" data-g="klasik"><b>KLASİK</b><small>2-8 kişi</small></button><button type="button" class="segb" data-g="pinpon"><b>PİNPON</b><small>2 kişi</small></button><button type="button" class="segb" data-g="xox"><b>XOX</b><small>2 kişi</small></button><button type="button" class="segb" data-g="acik"><b>AÇIK ARTIRMA</b><small>2-8 kişi</small></button></div><span class="small muted" id="pl-mdesc"></span></div>
   <div class="field"><span class="small muted">Zorluk</span><div class="seg" id="pl-diff"><button type="button" class="segb" data-d="kolay"><b>KOLAY</b></button><button type="button" class="segb" data-d="orta"><b>ORTA</b></button><button type="button" class="segb" data-d="zor"><b>ZOR</b></button></div></div>
   <div class="field" id="pl-rf"><span class="small muted" id="pl-rl">Soru sayısı</span><div class="stepper" id="pl-rstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="soru"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">soru</span><span class="quick"><button type="button" data-q="5">5</button><button type="button" data-q="10">10</button><button type="button" data-q="15">15</button></span></div></div>
   <div class="field"><span class="small muted" id="pl-tl">Her soru için süre</span><div class="stepper" id="pl-tstep"><button type="button" data-d="-1" aria-label="Azalt">−</button><input type="number" inputmode="numeric" aria-label="sn"><button type="button" data-d="1" aria-label="Artır">+</button><span class="unit">sn</span><span class="quick"><button type="button" data-q="10">10</button><button type="button" data-q="20">20</button><button type="button" data-q="30">30</button></span></div></div>
@@ -736,6 +754,25 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
   <div class="chips" id="pp-used"></div>
   <input id="pp-in" type="search" autocomplete="off" autocapitalize="words" aria-label="Futbolcu adı">
   <div class="sugg" id="pp-sugg"></div><div id="pp-msg" style="min-height:22px;font-weight:600"></div>
+</section>
+
+<section id="s-au" class="screen scrolly">
+  <div class="pf-top"><button class="back gexit" type="button">‹ Oyundan çık</button><span class="small muted" id="au-round" style="flex:1;margin-left:10px"></span><span class="coinpill" id="au-score"></span></div>
+  <div class="mid"><div class="duel" id="au-duel"></div></div>
+  <div class="turnb" id="au-turn"></div>
+  <div class="au-top" id="au-top"></div>
+  <div class="au-pl" id="au-pl"></div>
+  <div class="au-bid" id="au-bid" hidden>
+    <div class="au-step"><button type="button" id="au-minus" aria-label="Azalt">−</button><b id="au-n">1</b><button type="button" id="au-plus" aria-label="Artır">+</button></div>
+    <button class="cta" id="au-go" type="button">1 OYUNCU SAYARIM</button>
+    <button class="ghost" id="au-pass" type="button">PAS</button>
+  </div>
+  <div id="au-ans" hidden style="display:flex;flex-direction:column;gap:8px">
+    <div class="au-prog"><i id="au-bar" style="width:0"></i></div>
+    <div class="chips" id="au-used"></div>
+    <input id="au-in" type="search" autocomplete="off" autocapitalize="words" aria-label="Futbolcu adı">
+    <div class="sugg" id="au-sugg"></div><div id="au-msg" style="min-height:22px;font-weight:600"></div>
+  </div>
 </section>
 
 <section id="s-xo" class="screen scrolly">
@@ -2834,7 +2871,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.29.5';
+var APP_VERSION='0.30.0';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -2890,7 +2927,7 @@ function pEnter(host,code){
    pSet({v:2,mode:'party',pid:PT.pid,name:nm,host:host});
    room.onPeers(pPeers,function(){banner('Bağlantı koptu. Odadan çıkıp tekrar dene.');});
    if(host){
-    var cfg={diff:SOLO.diff,rounds:SOLO.rounds,time:DIFF[SOLO.diff].t/1000,lg:LEAGUES.map(function(l){return l.id;})};
+    var cfg={diff:SOLO.diff,rounds:SOLO.rounds,time:DIFF[SOLO.diff].t/1000,lg:LEAGUES.map(function(l){return l.id;})};if(PT.preMode){cfg.mode=PT.preMode;cfg.rounds=Math.min(cfg.rounds,8);cfg.time=pDefT(cfg);}
     PT.st={m:genCode(),seq:0,ph:'lobby',cfg:cfg,lobby:[{id:PT.pid,n:nm}],players:[],sc:{},cor:{},r:0,pk:[null,null],subs:{},res:null};
     clearInterval(PT.tick);PT.tick=setInterval(pHostTick,1000);
     pCommit();
@@ -2947,7 +2984,7 @@ function pStartGame(){
  var st=PT.st;if(st.lobby.length<2){gtoast('Başlamak için en az 2 oyuncu gerekli');return;}
  st.players=st.lobby.map(function(p,i){return {id:p.id,n:p.n,c:PCOL[i%8]};});st.sc={};st.cor={};st.players.forEach(function(p){st.sc[p.id]=0;st.cor[p.id]=0;});
  st.m=genCode();st.r=0;PT.used={};
- var gm=st.cfg.mode||'klasik';if(gm==='pinpon')ppNext();else if(gm==='xox')xoNext();else pNextRound();
+ var gm=st.cfg.mode||'klasik';if(gm==='pinpon')ppNext();else if(gm==='xox')xoNext();else if(gm==='acik')auNext();else pNextRound();
 }
 function pNextRound(){
  var st=PT.st;st.r++;var pr=pPair();if(!pr){gtoast('Seçili liglerde eşleşme bulunamadı, lig ekle');st.ph='lobby';pCommit();return;}
@@ -2957,6 +2994,7 @@ function pNextRound(){
 function pHostSub(pid,v){
  if(PT.st&&PT.st.ph==='pp'){ppMove(pid,v);return;}
  if(PT.st&&PT.st.ph==='xo'){xoMove(pid,v);return;}
+ if(PT.st&&PT.st.ph==='au'){auMove(pid,v);return;}
  var st=PT.st;if(!st||st.ph!=='race'||v.m!==st.m||v.r!==st.r||st.subs[pid])return;
  if(!st.players.some(function(p){return p.id===pid;}))return;
  if(v.pass)st.subs[pid]={pass:1};
@@ -2976,21 +3014,21 @@ function pEndRound(){
 }
 function pHostNext(){var st=PT.st,gm=st.cfg.mode||'klasik';
  if(gm==='xox'){var ids=st.players.map(function(p){return p.id;});if(st.r>=3||st.sc[ids[0]]>=2||st.sc[ids[1]]>=2){st.ph='final';pCommit();}else xoNext();return;}
- if(st.r>=st.cfg.rounds){st.ph='final';pCommit();}else if(gm==='pinpon')ppNext();else pNextRound();}
-function pHostTick(){if(!PT.active||!PT.host||!PT.st)return;var ph=PT.st.ph;if(ph==='race')pMaybeEnd();else if(ph==='pp')ppTick();else if(ph==='xo')xoTick();}
+ if(st.r>=st.cfg.rounds){st.ph='final';pCommit();}else if(gm==='pinpon')ppNext();else if(gm==='acik')auNext();else pNextRound();}
+function pHostTick(){if(!PT.active||!PT.host||!PT.st)return;var ph=PT.st.ph;if(ph==='race')pMaybeEnd();else if(ph==='pp')ppTick();else if(ph==='xo')xoTick();else if(ph==='au')auTick();}
 /* lobby controls (host) */
 function pCfgRender(st){
  var c=st.cfg;
  document.querySelectorAll('#pl-diff .segb').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.d===c.diff);});
  stepSet('pl-rstep',c.rounds);stepSet('pl-tstep',c.time||pDefT(c));
  document.querySelectorAll('#pl-rstep input,#pl-tstep input').forEach(function(x){x.readOnly=!PT.host;});
- $('pl-tl').textContent=(c.mode||'klasik')==='klasik'?'Her soru için süre (5-120 sn)':'Her hamle için süre (5-120 sn)';
+ $('pl-tl').textContent=(c.mode||'klasik')==='klasik'?'Her soru için süre (5-120 sn)':c.mode==='acik'?'Sayılacak her oyuncu için süre (5-120 sn)':'Her hamle için süre (5-120 sn)';
  $('pl-lg').innerHTML=LEAGUES.map(function(l){return '<button type="button" class="chipbtn" data-l="'+l.id+'" aria-pressed="'+(c.lg.indexOf(l.id)>-1)+'"><span class="badge" style="width:22px;height:22px;border-radius:6px;font-size:11px;background:'+l.color+'">'+l.code+'</span>'+esc(l.name)+'</button>';}).join('');
 }
 $('pl-diff').addEventListener('click',function(e){var b=e.target.closest('.segb');if(!b||!PT.host)return;PT.st.cfg.diff=b.dataset.d;PT.st.cfg.time=pDefT(PT.st.cfg);pCommit();});
 bindStepper('pl-rstep',1,50,function(v){if(!PT.host)return;PT.st.cfg.rounds=v;pCommit();});
 bindStepper('pl-tstep',5,120,function(v){if(!PT.host)return;PT.st.cfg.time=v;pCommit();});
-function pDefT(c){var d=c.diff||'orta',m=c.mode||'klasik';return m==='pinpon'?PPT[d]:m==='xox'?XOT[d]:DIFF[d].t/1000;}
+function pDefT(c){var d=c.diff||'orta',m=c.mode||'klasik';return m==='pinpon'?PPT[d]:m==='xox'?XOT[d]:m==='acik'?AUT[d]:DIFF[d].t/1000;}
 function pLimit(st){return (st.cfg.time||pDefT(st.cfg))*1000;}
 function pMoveT(st){return st.cfg.time||pDefT(st.cfg);}
 $('pl-lg').addEventListener('click',function(e){var b=e.target.closest('.chipbtn');if(!b||!PT.host)return;var lg=PT.st.cfg.lg,i=lg.indexOf(b.dataset.l);if(i>-1){if(lg.length===1){gtoast('En az bir lig seçili kalmalı');return;}lg.splice(i,1);}else lg.push(b.dataset.l);pCommit();});
@@ -3015,16 +3053,16 @@ function pRender(st){
   $('pl-list').innerHTML=st.lobby.map(function(p,i){return '<div class="prow'+(p.id===PT.pid?' me':'')+'">'+pAv(p,i)+'<span class="nm">'+esc(p.n)+'</span>'+(i===0?'<span class="tag">👑 Oda sahibi</span>':'')+(p.id===PT.pid?'<span class="tag">Sen</span>':'')+'</div>';}).join('');
   pCfgRender(st);
   var gm=st.cfg.mode||'klasik';document.querySelectorAll('#pl-mode .segb').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.g===gm);});
-  $('pl-mdesc').textContent=gm==='klasik'?'Herkes aynı anda yazar, hızlı bilen daha çok puan alır.':gm==='pinpon'?'Aynı iki kulüp için sırayla ortak oyuncu sayın. Süresinde bulamayan turu kaybeder.':'3x3 tahtada sırayla kare kap. Doğru bilen kareye işaretini koyar, üçünü dizen tahtayı alır. En fazla 3 tahta.';
-  $('pl-rf').hidden=gm==='xox';$('pl-rl').textContent=gm==='pinpon'?'Tur sayısı':'Soru sayısı';
+  $('pl-mdesc').textContent=gm==='klasik'?'Herkes aynı anda yazar, hızlı bilen daha çok puan alır.':gm==='pinpon'?'Aynı iki kulüp için sırayla ortak oyuncu sayın. Süresinde bulamayan turu kaybeder.':gm==='acik'?'İki kulüp gelir, sırayla "şu kadar oyuncu sayarım" diye teklif verirsiniz. Pas demeyen son kişi o sayıyı süresinde yazmak zorunda: tutturursa turu alır, tutturamazsa diğer herkes puan alır.':'3x3 tahtada sırayla kare kap. Doğru bilen kareye işaretini koyar, üçünü dizen tahtayı alır. En fazla 3 tahta.';
+  $('pl-rf').hidden=gm==='xox';$('pl-rl').textContent=gm==='pinpon'||gm==='acik'?'Tur sayısı':'Soru sayısı';
   $('pl-cfg').classList.toggle('ro',!PT.host);
   $('pl-who').textContent=PT.host?'':'· oda sahibi seçiyor';
-  var two=gm!=='klasik',sb=$('pl-start');sb.hidden=!PT.host;sb.disabled=st.lobby.length<2||(two&&st.lobby.length!==2);sb.textContent=st.lobby.length<2?'Oyuncu bekleniyor…':(two&&st.lobby.length!==2?'Bu mod tam 2 kişiyle oynanır':'Oyunu başlat ('+st.lobby.length+' kişi)');
+  var two=gm==='pinpon'||gm==='xox',sb=$('pl-start');sb.hidden=!PT.host;sb.disabled=st.lobby.length<2||(two&&st.lobby.length!==2);sb.textContent=st.lobby.length<2?'Oyuncu bekleniyor…':(two&&st.lobby.length!==2?'Bu mod tam 2 kişiyle oynanır':'Oyunu başlat ('+st.lobby.length+' kişi)');
   $('pl-hint').hidden=false;
   if(!$('s-plobby').classList.contains('on'))show('s-plobby');
   break;
  case 'reveal':
-  if(enter){show('s-reveal');var c=$('rv-count'),d=$('rv-duel');c.style.display='none';d.innerHTML=duelHTML(true)+'<p class="muted" style="font-size:16px;margin:0">Soru '+st.r+' / '+st.cfg.rounds+' · hazır ol…</p>';d.style.display='flex';d.className='pop';}
+  if(enter){show('s-reveal');var c=$('rv-count'),d=$('rv-duel');c.style.display='none';d.innerHTML=duelHTML(true)+'<p class="muted" style="font-size:16px;margin:0">'+((st.cfg.mode||'klasik')==='klasik'?'Soru ':'Tur ')+st.r+' / '+st.cfg.rounds+' · hazır ol…</p>';d.style.display='flex';d.className='pop';}
   break;
  case 'race':
   if(enter||!$('s-orace').classList.contains('on'))oRaceEnter();
@@ -3035,6 +3073,8 @@ function pRender(st){
  case 'final':if(enter)pFinal(st);break;
  case 'pp':ppRender(st,enter);break;
  case 'xo':xoRender(st,enter);break;
+ case 'au':auRender(st,enter);break;
+ case 'aures':if(enter)auResult(st);break;
  case 'ppres':case 'xores':if(enter)ppxoResult(st);break;
  }
 }
@@ -3072,8 +3112,8 @@ function pFinal(st){
  var stn=pStandings(st),myRank=stn.map(function(p){return p.id;}).indexOf(PT.pid);
  $('pf2-title').textContent=stn[0]?(stn[0].id===PT.pid?'ŞAMPİYON SENSİN!':(stn[0].n+' KAZANDI').toLocaleUpperCase('tr-TR')):'';
  var order=[1,0,2],cls=['p1','p2','p3'];
- $('pf2-pod').innerHTML=order.map(function(k){var p=stn[k];if(!p)return '<div class="pod"></div>';return '<div class="pod '+cls[k]+'">'+(k===0?'<span class="crown">👑</span>':'')+'<span class="nm">'+esc(p.n)+'</span><span class="sc">'+st.sc[p.id]+((st.cfg.mode||'klasik')==='klasik'?' puan':' galibiyet')+'</span><div class="bar">'+(k+1)+'</div></div>';}).join('');
- $('pf2-list').innerHTML=stn.map(function(p,i){return '<div class="prow'+(p.id===PT.pid?' me':'')+'"><b style="width:24px">'+(i+1)+'.</b>'+pAv(p,st.players.indexOf(p))+'<span class="nm">'+esc(p.n)+'<br><span class="sub">'+((st.cfg.mode||'klasik')==='klasik'?st.cor[p.id]+'/'+st.cfg.rounds+' doğru':st.sc[p.id]+' '+(st.cfg.mode==='xox'?'tahta':'tur')+' kazandı')+'</span></span><span class="pt">'+st.sc[p.id]+'</span></div>';}).join('');
+ $('pf2-pod').innerHTML=order.map(function(k){var p=stn[k];if(!p)return '<div class="pod"></div>';return '<div class="pod '+cls[k]+'">'+(k===0?'<span class="crown">👑</span>':'')+'<span class="nm">'+esc(p.n)+'</span><span class="sc">'+st.sc[p.id]+((st.cfg.mode||'klasik')==='klasik'||st.cfg.mode==='acik'?' puan':' galibiyet')+'</span><div class="bar">'+(k+1)+'</div></div>';}).join('');
+ $('pf2-list').innerHTML=stn.map(function(p,i){return '<div class="prow'+(p.id===PT.pid?' me':'')+'"><b style="width:24px">'+(i+1)+'.</b>'+pAv(p,st.players.indexOf(p))+'<span class="nm">'+esc(p.n)+'<br><span class="sub">'+((st.cfg.mode||'klasik')==='klasik'?st.cor[p.id]+'/'+st.cfg.rounds+' doğru':st.cfg.mode==='acik'?(st.cor[p.id]||0)+' oyuncu saydı':st.sc[p.id]+' '+(st.cfg.mode==='xox'?'tahta':'tur')+' kazandı')+'</span></span><span class="pt">'+st.sc[p.id]+'</span></div>';}).join('');
  var rw='';
  if(PROF&&myRank>-1&&PT.matchKey!==st.m){PT.matchKey=st.m;
   var L0=lvlOf(PROF.xp),c=20+(myRank===0?50:myRank===1?25:myRank===2?10:0),x=30+(myRank===0?100:myRank===1?50:0);PROF.coins+=c;PROF.xp+=x;
@@ -3168,6 +3208,106 @@ $('xo-grid').addEventListener('click',function(e){var b=e.target.closest('.gc');
  PT.xoSel=+b.dataset.i;var r=Math.floor(PT.xoSel/3),c=PT.xoSel%3;$('xo-pair').innerHTML='<b>'+esc(CLUBS[st.xo.R[r]].n)+'</b> × <b>'+esc(CLUBS[st.xo.C[c]].n)+'</b> · tek hakkın var';$('xo-panel').hidden=false;clearAns('xo-in','xo-sugg');xoRender(st,false);focusIn('xo-in');});
 bindAnswer('xo-in','xo-sugg',function(name){var st=PT.st;if(!st||st.ph!=='xo'||st.xo.turn!==PT.pid||PT.xoSel<0)return;if(!resolve(name).length&&!String(name).trim())return;
  pSend({k:st.xo.k,cell:PT.xoSel,name:String(name).slice(0,80)});PT.xoSel=-1;$('xo-panel').hidden=true;clearAns('xo-in','xo-sugg');});
+/* ---------- AÇIK ARTIRMA (2-8 players, inside the party room) ----------
+   bid phase : players take turns raising "I can name N players"; pass drops you out of this round
+   ans phase : the last one standing must type N different common players, (N x per-player time) seconds
+   scoring   : success -> bidder +1, failure -> every other player +1 */
+var AUT={kolay:15,orta:12,zor:10},AUBT=15,AUMAX=30;
+function auNext(){
+ var st=PT.st,d=st.cfg.diff,n=st.players.length;st.r++;
+ st.pk=pickPair(d,d==='kolay'?8:d==='orta'?6:3,PT.used,pAllowed())||pPairMin_old(d==='kolay'?12:d==='orta'?8:5);
+ if(st.pk)PT.used[st.pk[0]+'|'+st.pk[1]]=1;
+ var order=st.players.map(function(p){return p.id;});
+ st.au={stage:'bid',order:order,turn:order[(st.r-1)%n],bid:0,by:null,out:{},tl:AUBT,k:0,found:[],need:0,atl:0,atot:0,log:[]};
+ st.res=null;st.ph='reveal';pCommit();
+ clearTimeout(PT.hto);PT.hto=setTimeout(function(){if(PT.active&&PT.st.ph==='reveal'){PT.st.ph='au';pCommit();}},2200);
+}
+function auNextTurn(st,from){var a=st.au,o=a.order,i=o.indexOf(from),on=PT.online||{};
+ for(var j=1;j<=o.length;j++){var id=o[(i+j)%o.length];if(!a.out[id]&&id!==a.by)return id;}return null;}
+function auToAnswer(st){var a=st.au;a.stage='ans';a.turn=a.by;a.need=a.bid;a.atot=a.atl=a.bid*pMoveT(st)+3;a.k++;}
+function auApplyBid(st,pid,n,pass){
+ var a=st.au;
+ if(pass){if(!a.bid)return false;a.out[pid]=1;a.log.push({id:pid,pass:1});}
+ else{n=Math.round(+n);if(!(n>a.bid&&n<=AUMAX))return false;a.bid=n;a.by=pid;a.log.push({id:pid,n:n});}
+ a.k++;var nx=auNextTurn(st,pid);
+ if(!nx){if(a.by)auToAnswer(st);else{a.turn=pid;}}else{a.turn=nx;a.tl=AUBT;}
+ return true;
+}
+function auFinish(st,ok){var a=st.au;
+ if(ok)st.sc[a.by]++;else st.players.forEach(function(p){if(p.id!==a.by)st.sc[p.id]++;});
+ st.res={type:'au',by:a.by,need:a.need,ok:ok};st.ph='aures';}
+function auMove(pid,v){
+ var st=PT.st,a=st.au;if(!a||v.m!==st.m||v.r!==st.r||pid!==a.turn||v.k!==a.k)return;
+ if(a.stage==='bid'){if(auApplyBid(st,pid,v.bid,!!v.pass))pCommit();return;}
+ var valid=common(st.pk[0],st.pk[1]),c=resolve(String(v.name||'').slice(0,80)),pl=c.filter(function(x){return valid.indexOf(x)>-1;})[0];
+ if(!pl||a.found.indexOf(pl.name)>-1)return;
+ a.found.push(pl.name);st.cor[pid]=(st.cor[pid]||0)+1;a.k++;
+ if(a.found.length>=a.need)auFinish(st,true);
+ pCommit();
+}
+function auTick(){var st=PT.st,a=st.au;if(!a)return;
+ if(a.stage==='bid'){a.tl--;if(a.tl<0){if(!a.bid)auApplyBid(st,a.turn,1,false);else auApplyBid(st,a.turn,0,true);}pCommit();return;}
+ a.atl--;if(a.atl<0)auFinish(st,false);pCommit();}
+function auScoreTxt(st){return st.players.length===2?st.players[0].n+' '+st.sc[st.players[0].id]+' – '+st.sc[st.players[1].id]+' '+st.players[1].n:'Puanın: '+(st.sc[PT.pid]||0);}
+function auRender(st,enter){
+ var a=st.au,me=PT.pid,mine=a.turn===me;
+ if(enter||!$('s-au').classList.contains('on')){G.names=['',''];$('au-duel').innerHTML=duelHTML(false);clearAns('au-in','au-sugg');$('au-msg').textContent='';PT.auK=-1;PT.auStage='';show('s-au');}
+ $('au-round').textContent='Açık artırma · Tur '+st.r+'/'+st.cfg.rounds;
+ $('au-score').textContent=auScoreTxt(st);
+ var tb=$('au-turn'),bid=a.stage==='bid';
+ var tl=bid?a.tl:a.atl;tb.className='turnb'+(mine?' me':'')+(tl<=(bid?3:5)?' low':'');
+ tb.innerHTML='<span>'+(bid?(mine?(a.bid?'SIRA SENDE! ARTIR YA DA PAS':'İLK TEKLİF SENDEN!'):esc(pName(st,a.turn)).toLocaleUpperCase('tr-TR')+' DÜŞÜNÜYOR…'):(mine?'SAY! '+a.found.length+' / '+a.need:esc(pName(st,a.by)).toLocaleUpperCase('tr-TR')+' SAYIYOR · '+a.found.length+'/'+a.need))+'</span><span class="tt">'+Math.max(0,tl)+'</span>';
+ $('au-top').innerHTML='<div><div class="lbl">'+(bid?'EN YÜKSEK TEKLİF':'İHALEYİ ALAN')+'</div><div class="big">'+(a.bid||'–')+'</div></div><div class="who">'+(a.by?(a.by===me?'Sen':esc(pName(st,a.by)))+'<br><span class="small muted">'+a.bid+' oyuncu sayacak</span>':'<span class="small muted">Henüz teklif yok</span>')+'</div>';
+ $('au-pl').innerHTML=st.players.map(function(p){var cls=a.out[p.id]?'out':(a.by===p.id?'hi':'');return '<span class="'+cls+'"><i style="background:'+p.c+'"></i>'+esc(p.id===me?'Sen':p.n)+(a.out[p.id]?' · pas':(a.by===p.id?' · '+a.bid:''))+'</span>';}).join('');
+ var bb=$('au-bid'),ab=$('au-ans');
+ bb.hidden=!(bid&&mine);ab.hidden=bid;ab.style.display=bid?'none':'flex';
+ if(bid&&mine){
+  if(PT.auK!==a.k){PT.auK=a.k;PT.auWait=false;PT.auN=a.bid+1;if(navigator.vibrate){try{navigator.vibrate(30);}catch(e){}}sfx('ding');}
+  PT.auN=Math.max(a.bid+1,Math.min(AUMAX,PT.auN||a.bid+1));
+  $('au-n').textContent=PT.auN;$('au-go').textContent=PT.auN+' OYUNCU SAYARIM';$('au-pass').hidden=!a.bid;
+  $('au-minus').disabled=PT.auN<=a.bid+1;$('au-plus').disabled=PT.auN>=AUMAX;
+  $('au-go').disabled=$('au-pass').disabled=!!PT.auWait;
+ }
+ if(!bid){
+  $('au-bar').style.width=Math.round(100*a.found.length/Math.max(1,a.need))+'%';
+  $('au-used').innerHTML=a.found.length?a.found.map(function(n){return '<span class="uchip" style="background:'+pColor2(st,a.by)+'">'+esc(n)+'</span>';}).join(''):'<span class="small muted">'+(mine?'Haydi, '+a.need+' ortak oyuncu yaz!':'Henüz isim yok.')+'</span>';
+  var inp=$('au-in');inp.disabled=!mine;inp.placeholder=mine?'Ortak oyuncu yaz…':'Sadece ihaleyi alan yazar';
+  if(PT.auStage!=='ans'){PT.auStage='ans';sfx('whistle');}
+  if(mine&&PT.auK!==a.k){PT.auK=a.k;PT.auWait=false;if(a.found.length===0){clearAns('au-in','au-sugg');focusIn('au-in');}}
+ }else PT.auStage='bid';
+}
+function pColor2(st,id){var p=st.players.filter(function(x){return x.id===id;})[0];return p?p.c:'#555';}
+function auBid(pass){var st=PT.st;if(!st||st.ph!=='au'||st.au.stage!=='bid'||st.au.turn!==PT.pid||PT.auWait)return;PT.auWait=true;$('au-go').disabled=$('au-pass').disabled=true;pSend(pass?{k:st.au.k,pass:1}:{k:st.au.k,bid:PT.auN});}
+$('au-go').onclick=function(){auBid(false);};
+$('au-pass').onclick=function(){auBid(true);};
+$('au-minus').onclick=function(){var a=PT.st&&PT.st.au;if(!a)return;PT.auN=Math.max(a.bid+1,(PT.auN||1)-1);auRender(PT.st,false);};
+$('au-plus').onclick=function(){var a=PT.st&&PT.st.au;if(!a)return;PT.auN=Math.min(AUMAX,(PT.auN||1)+1);auRender(PT.st,false);};
+bindAnswer('au-in','au-sugg',function(name){
+ var st=PT.st;if(!st||st.ph!=='au'||st.au.stage!=='ans')return;
+ if(st.au.by!==PT.pid){$('au-msg').innerHTML='<span class="muted">Sadece ihaleyi alan yazabilir</span>';return;}
+ var valid=common(st.pk[0],st.pk[1]),c=resolve(name),pl=c.filter(function(x){return valid.indexOf(x)>-1;})[0];
+ if(!pl){if(c.length||String(name).trim()){var wn=c[0]?c[0].name:String(name).trim();$('au-msg').innerHTML='<span class="bad">Yanlış: '+esc(wn)+'</span>'+reportBtn();bindReport(wn,st.pk[0],st.pk[1],$('au-msg'));shake($('au-in'));clearAns('au-in','au-sugg');}return;}
+ if(st.au.found.indexOf(pl.name)>-1){$('au-msg').innerHTML='<span class="bad">'+esc(pl.name)+' zaten yazıldı</span>';shake($('au-in'));clearAns('au-in','au-sugg');return;}
+ $('au-msg').innerHTML='<span class="good">✓ '+esc(pl.name)+'</span>';clearAns('au-in','au-sugg');pSend({k:st.au.k,name:pl.name});
+ if(navigator.vibrate){try{navigator.vibrate(25);}catch(e){}}
+});
+function auResult(st){
+ var r=st.res,a=st.au,me=PT.pid,byN=r.by===me?'Sen':pName(st,r.by);
+ $('rs-round').textContent='Açık artırma · Tur '+st.r+'/'+st.cfg.rounds+' · '+CLUBS[st.pk[0]].n+' – '+CLUBS[st.pk[1]].n;
+ $('rs-avs').innerHTML='';
+ var iWon=r.ok?r.by===me:r.by!==me;
+ if(PT.sfxK!=='au'+st.m+st.r){PT.sfxK='au'+st.m+st.r;sfx(iWon?'goal':'wrong');}
+ $('rs-verdict').textContent=r.ok?(r.by===me?'İHALE SENİN! +1':(byN+' TUTTURDU').toLocaleUpperCase('tr-TR')):(r.by===me?'SAYAMADIN':(byN+' SAYAMADI').toLocaleUpperCase('tr-TR'));
+ $('rs-detail').innerHTML=(!r.ok?'<b class="'+(r.by===me?'bad':'good')+'">'+(r.by===me?(st.players.length>2?'Diğer herkes +1 puan aldı.':'Rakibin +1 puan aldı.'):'+1 puan sana!')+'</b><br>':'')+esc(byN)+' '+r.need+' oyuncu '+(r.by===me?'sayacağını söyledin':'sayacağını söyledi')+', '+a.found.length+' tanesini '+(r.ok?'süresinde yazdı.':'yazabildi.')+'<div class="chips" style="margin-top:8px">'+a.found.map(function(n){return '<span class="uchip" style="background:'+pColor2(st,r.by)+'">'+esc(n)+'</span>';}).join('')+'</div>';
+ var rest=common(st.pk[0],st.pk[1]).filter(function(x){return a.found.indexOf(x.name)<0;}).sort(function(x,y){return y.fame-x.fame;});
+ $('rs-also').innerHTML='<span class="small muted">Bu iki kulübün toplam '+(rest.length+a.found.length)+' ortak oyuncusu var'+(rest.length?', mesela':'')+'</span>'+(rest.length?'<br>'+rest.slice(0,10).map(function(x){return esc(x.name);}).join(', '):'');
+ var stn=pStandings(st);
+ $('rs-score').innerHTML='<span class="small muted" style="font-family:Barlow,sans-serif;font-weight:600">SIRALAMA</span><br><span style="font-size:19px">'+stn.map(function(p,i){return (i+1)+'. '+esc(p.n)+' <b>'+st.sc[p.id]+'</b>';}).join(' · ')+'</span>';
+ var last=st.r>=st.cfg.rounds,b=$('btn-next');
+ if(PT.host){b.disabled=false;b.textContent=last?'Sonuçları gör':'Sonraki tur';b.onclick=pHostNext;}
+ else{b.disabled=true;b.textContent=pName(st,st.players[0].id)+' devam ettirecek…';b.onclick=null;}
+ show('s-result');
+}
 function ppxoResult(st){
  var r=st.res,me=PT.pid,isPP=r.type==='pp';
  $('rs-round').textContent=isPP?'Pinpon · Tur '+st.r+'/'+st.cfg.rounds+' · '+CLUBS[st.pk[0]].n+' – '+CLUBS[st.pk[1]].n:'XOX · Tahta '+st.r+' / 3';
@@ -3234,7 +3374,7 @@ $('ta-back').onclick=function(){if(TA&&!TA.over){var t=performance.now();TA.paus
  document.querySelectorAll('button.back').forEach(function(b){var t=b.textContent.replace('‹','').trim()||'Geri';b.setAttribute('aria-label',t);b.title=t;b.innerHTML=chev;});})();
 
 /* ---------- focus helpers: answer boxes open with the cursor already inside ---------- */
-var ANS={'or-input':1,'gx-in':1,'br-in':1,'ca-in':1,'ta-in':1,'pp-in':1,'xo-in':1},TOUCH=window.matchMedia&&matchMedia('(pointer: coarse)').matches;
+var ANS={'au-in':1,'or-input':1,'gx-in':1,'br-in':1,'ca-in':1,'ta-in':1,'pp-in':1,'xo-in':1},TOUCH=window.matchMedia&&matchMedia('(pointer: coarse)').matches;
 function kbWake(e){var el=e.currentTarget;if(el.getAttribute('inputmode')!=='none')return;if(e.cancelable)e.preventDefault();el.removeAttribute('inputmode');if(document.activeElement===el){el._wake=1;el.blur();el._wake=0;try{el.focus({preventScroll:true});}catch(x){el.focus();}}}
 Object.keys(ANS).forEach(function(id){var el=document.getElementById(id);if(!el)return;el.addEventListener('touchend',kbWake,{passive:false});el.addEventListener('blur',function(){if(TOUCH&&!el._wake)el.setAttribute('inputmode','none');});});
 document.querySelectorAll('input[type=search],input[type=text]').forEach(function(i){i.setAttribute('autocomplete','off');i.setAttribute('autocorrect','off');i.spellcheck=false;});
@@ -3829,7 +3969,7 @@ $('se-menu').onclick=function(){if(END.menu)END.menu();else show('s-modes');};
   later(3500,function(){intro.classList.add('t5');});
  };
  intro.addEventListener('click',function(e){
-  if(e.target.closest('#btn-play')||e.target.closest('#btn-play2')||e.target.closest('#mx-card')||e.target.closest('#btn-prof')||e.target.closest('#btn-fb')||e.target.closest('#btn-party'))return;
+  if(e.target.closest('#btn-play')||e.target.closest('#btn-play2')||e.target.closest('#mx-card')||e.target.closest('#btn-prof')||e.target.closest('#btn-fb')||e.target.closest('#btn-party')||e.target.closest('#btn-auction'))return;
   if(!intro.classList.contains('t5'))finalState();
  });
  $('mx-card').addEventListener('click',function(){
@@ -3848,7 +3988,8 @@ $('se-menu').onclick=function(){if(END.menu)END.menu();else show('s-modes');};
  }
  $('btn-play').onclick=function(){if(FX.sound)whistle();openModes();};
  $('btn-play2').onclick=function(){if(FX.sound)whistle();$('btn-online').click();};
- $('btn-party').onclick=function(){if(FX.sound)whistle();openEntry('party');};
+ $('btn-party').onclick=function(){if(FX.sound)whistle();PT.preMode=null;openEntry('party');};
+ $('btn-auction').onclick=function(){if(FX.sound)whistle();PT.preMode='acik';openEntry('party');$('on-title').textContent='AÇIK ARTIRMA';};
 })();
 startIntro();
 /* standalone build: online rooms run on Firebase Realtime Database (same room API the game already uses) */
