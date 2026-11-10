@@ -584,9 +584,17 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
 .au-pl span.hi{border-color:#F5D90A;box-shadow:0 0 0 1px #F5D90A inset}
 .au-pl i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .au-bid{display:flex;flex-direction:column;gap:10px}
+#au-quit.arm{border-color:#EF4444;color:#EF4444}
 .au-step{display:flex;align-items:center;justify-content:center;gap:14px}
 .au-step button{width:56px;height:56px;border-radius:50%;font-size:30px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--text,#fff)}
 .au-step b{font-family:'Barlow Condensed',sans-serif;font-size:56px;min-width:70px;text-align:center;line-height:1}
+.au-rank{display:flex;flex-direction:column;gap:6px;margin-top:8px;font-family:Barlow,sans-serif}
+.au-rank div{display:grid;grid-template-columns:26px 12px 1fr auto;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:17px;font-weight:600}
+.au-rank div.me{border-color:#F5D90A}
+.au-rank span{color:var(--muted);font-variant-numeric:tabular-nums}
+.au-rank i{width:12px;height:12px;border-radius:50%}
+.au-rank em{font-style:normal;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.au-rank b{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-variant-numeric:tabular-nums}
 .au-prog{height:8px;border-radius:99px;background:var(--surface);overflow:hidden}
 .au-prog i{display:block;height:100%;background:linear-gradient(90deg,#22C55E,#F5D90A);transition:width .3s}
 #s-intro.t5 #btn-play{opacity:1;transform:none;animation:pulse 1.8s 1s infinite}
@@ -772,6 +780,7 @@ input[type=text],input[type=search]{width:100%;height:50px;border-radius:12px;bo
     <div class="chips" id="au-used"></div>
     <input id="au-in" type="search" autocomplete="off" autocapitalize="words" aria-label="Futbolcu adı">
     <div class="sugg" id="au-sugg"></div><div id="au-msg" style="min-height:22px;font-weight:600"></div>
+    <button class="ghost" id="au-quit" type="button" hidden>İHALEDEN ÇEKİL</button>
   </div>
 </section>
 
@@ -2871,7 +2880,7 @@ try{applyPatches(JSON.parse(localStorage.getItem('oo-patches')||'[]'));}catch(e)
 setTimeout(function(){var C=cloud();if(!C)return;C.ready().then(function(c){return c.db.ref('patches').once('value');}).then(function(s){var v=s.val()||{},arr=Object.keys(v).map(function(k){return v[k];});try{localStorage.setItem('oo-patches',JSON.stringify(arr));}catch(e){}applyPatches(arr);}).catch(function(){});},3200);
 
 /* ---------- feedback: players report bugs/ideas; everything lands in the admin panel ---------- */
-var APP_VERSION='0.30.0';
+var APP_VERSION='0.30.1';
 var FB={type:'hata',from:'s-intro',lastErr:'',auto:0,seen:{}};
 function devShort(){var u=navigator.userAgent||'',os=/iPhone|iPad/.test(u)?'iPhone/iPad':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'Diğer';var m=u.match(/OS (\d+)_/)||u.match(/Android (\d+)/);return os+(m?' '+m[1]:'')+' · '+(window.navigator.standalone||matchMedia('(display-mode: standalone)').matches?'uygulama':'tarayıcı');}
 function curScreen(){var s=document.querySelector('.screen.on');return s?s.id:'';}
@@ -3235,10 +3244,11 @@ function auApplyBid(st,pid,n,pass){
 }
 function auFinish(st,ok){var a=st.au;
  if(ok)st.sc[a.by]++;else st.players.forEach(function(p){if(p.id!==a.by)st.sc[p.id]++;});
- st.res={type:'au',by:a.by,need:a.need,ok:ok};st.ph='aures';}
+ st.res={type:'au',by:a.by,need:a.need,ok:ok,q:a.quit?1:0};st.ph='aures';}
 function auMove(pid,v){
  var st=PT.st,a=st.au;if(!a||v.m!==st.m||v.r!==st.r||pid!==a.turn||v.k!==a.k)return;
  if(a.stage==='bid'){if(auApplyBid(st,pid,v.bid,!!v.pass))pCommit();return;}
+ if(v.quit){a.quit=1;auFinish(st,false);pCommit();return;}
  var valid=common(st.pk[0],st.pk[1]),c=resolve(String(v.name||'').slice(0,80)),pl=c.filter(function(x){return valid.indexOf(x)>-1;})[0];
  if(!pl||a.found.indexOf(pl.name)>-1)return;
  a.found.push(pl.name);st.cor[pid]=(st.cor[pid]||0)+1;a.k++;
@@ -3271,6 +3281,7 @@ function auRender(st,enter){
  if(!bid){
   $('au-bar').style.width=Math.round(100*a.found.length/Math.max(1,a.need))+'%';
   $('au-used').innerHTML=a.found.length?a.found.map(function(n){return '<span class="uchip" style="background:'+pColor2(st,a.by)+'">'+esc(n)+'</span>';}).join(''):'<span class="small muted">'+(mine?'Haydi, '+a.need+' ortak oyuncu yaz!':'Henüz isim yok.')+'</span>';
+  var qb=$('au-quit');qb.hidden=!mine;if(!mine||PT.auQ!==st.r+'|'+st.m){qb.textContent='İHALEDEN ÇEKİL';qb.classList.remove('arm');}
   var inp=$('au-in');inp.disabled=!mine;inp.placeholder=mine?'Ortak oyuncu yaz…':'Sadece ihaleyi alan yazar';
   if(PT.auStage!=='ans'){PT.auStage='ans';sfx('whistle');}
   if(mine&&PT.auK!==a.k){PT.auK=a.k;PT.auWait=false;if(a.found.length===0){clearAns('au-in','au-sugg');focusIn('au-in');}}
@@ -3279,6 +3290,9 @@ function auRender(st,enter){
 function pColor2(st,id){var p=st.players.filter(function(x){return x.id===id;})[0];return p?p.c:'#555';}
 function auBid(pass){var st=PT.st;if(!st||st.ph!=='au'||st.au.stage!=='bid'||st.au.turn!==PT.pid||PT.auWait)return;PT.auWait=true;$('au-go').disabled=$('au-pass').disabled=true;pSend(pass?{k:st.au.k,pass:1}:{k:st.au.k,bid:PT.auN});}
 $('au-go').onclick=function(){auBid(false);};
+$('au-quit').onclick=function(){var st=PT.st,b=$('au-quit');if(!st||st.ph!=='au'||st.au.stage!=='ans'||st.au.by!==PT.pid)return;
+ if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Emin misin? Çekilmek için tekrar bas';PT.auQ=st.r+'|'+st.m;clearTimeout(PT.auQT);PT.auQT=setTimeout(function(){b.classList.remove('arm');b.textContent='İHALEDEN ÇEKİL';},3500);return;}
+ clearTimeout(PT.auQT);b.disabled=true;pSend({k:st.au.k,quit:1});setTimeout(function(){b.disabled=false;},1500);};
 $('au-pass').onclick=function(){auBid(true);};
 $('au-minus').onclick=function(){var a=PT.st&&PT.st.au;if(!a)return;PT.auN=Math.max(a.bid+1,(PT.auN||1)-1);auRender(PT.st,false);};
 $('au-plus').onclick=function(){var a=PT.st&&PT.st.au;if(!a)return;PT.auN=Math.min(AUMAX,(PT.auN||1)+1);auRender(PT.st,false);};
@@ -3297,12 +3311,12 @@ function auResult(st){
  $('rs-avs').innerHTML='';
  var iWon=r.ok?r.by===me:r.by!==me;
  if(PT.sfxK!=='au'+st.m+st.r){PT.sfxK='au'+st.m+st.r;sfx(iWon?'goal':'wrong');}
- $('rs-verdict').textContent=r.ok?(r.by===me?'İHALE SENİN! +1':(byN+' TUTTURDU').toLocaleUpperCase('tr-TR')):(r.by===me?'SAYAMADIN':(byN+' SAYAMADI').toLocaleUpperCase('tr-TR'));
+ $('rs-verdict').textContent=r.ok?(r.by===me?'İHALE SENİN! +1':(byN+' TUTTURDU').toLocaleUpperCase('tr-TR')):r.q?(r.by===me?'İHALEDEN ÇEKİLDİN':(byN+' İHALEDEN ÇEKİLDİ').toLocaleUpperCase('tr-TR')):(r.by===me?'SAYAMADIN':(byN+' SAYAMADI').toLocaleUpperCase('tr-TR'));
  $('rs-detail').innerHTML=(!r.ok?'<b class="'+(r.by===me?'bad':'good')+'">'+(r.by===me?(st.players.length>2?'Diğer herkes +1 puan aldı.':'Rakibin +1 puan aldı.'):'+1 puan sana!')+'</b><br>':'')+esc(byN)+' '+r.need+' oyuncu '+(r.by===me?'sayacağını söyledin':'sayacağını söyledi')+', '+a.found.length+' tanesini '+(r.ok?'süresinde yazdı.':'yazabildi.')+'<div class="chips" style="margin-top:8px">'+a.found.map(function(n){return '<span class="uchip" style="background:'+pColor2(st,r.by)+'">'+esc(n)+'</span>';}).join('')+'</div>';
  var rest=common(st.pk[0],st.pk[1]).filter(function(x){return a.found.indexOf(x.name)<0;}).sort(function(x,y){return y.fame-x.fame;});
  $('rs-also').innerHTML='<span class="small muted">Bu iki kulübün toplam '+(rest.length+a.found.length)+' ortak oyuncusu var'+(rest.length?', mesela':'')+'</span>'+(rest.length?'<br>'+rest.slice(0,10).map(function(x){return esc(x.name);}).join(', '):'');
  var stn=pStandings(st);
- $('rs-score').innerHTML='<span class="small muted" style="font-family:Barlow,sans-serif;font-weight:600">SIRALAMA</span><br><span style="font-size:19px">'+stn.map(function(p,i){return (i+1)+'. '+esc(p.n)+' <b>'+st.sc[p.id]+'</b>';}).join(' · ')+'</span>';
+ $('rs-score').innerHTML='<span class="small muted" style="font-family:Barlow,sans-serif;font-weight:600">SIRALAMA</span><br><div class="au-rank">'+stn.map(function(p,i){return '<div'+(p.id===me?' class="me"':'')+'><span>'+(i+1)+'.</span><i style="background:'+p.c+'"></i><em>'+esc(p.id===me?p.n+' (sen)':p.n)+'</em><b>'+st.sc[p.id]+'</b></div>';}).join('')+'</div>';
  var last=st.r>=st.cfg.rounds,b=$('btn-next');
  if(PT.host){b.disabled=false;b.textContent=last?'Sonuçları gör':'Sonraki tur';b.onclick=pHostNext;}
  else{b.disabled=true;b.textContent=pName(st,st.players[0].id)+' devam ettirecek…';b.onclick=null;}
@@ -3982,11 +3996,11 @@ $('se-menu').onclick=function(){if(END.menu)END.menu();else show('s-modes');};
  });
  function whistle(){
   try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();var t=AC.currentTime+.03;
-   [[0,.18],[.26,.5]].forEach(function(w){var o=AC.createOscillator(),lfo=AC.createOscillator(),lg=AC.createGain(),g=AC.createGain();o.type='sine';o.frequency.value=2900;lfo.frequency.value=38;lg.gain.value=160;lfo.connect(lg).connect(o.frequency);
-    g.gain.setValueAtTime(0,t+w[0]);g.gain.linearRampToValueAtTime(.16,t+w[0]+.02);g.gain.setValueAtTime(.16,t+w[0]+w[1]-.03);g.gain.linearRampToValueAtTime(0,t+w[0]+w[1]);
-    o.connect(g).connect(AC.destination);o.start(t+w[0]);lfo.start(t+w[0]);o.stop(t+w[0]+w[1]+.05);lfo.stop(t+w[0]+w[1]+.05);});}catch(err){}
+   [784,1046.5,1318.5,1568,2093].forEach(function(f,i){var o=AC.createOscillator(),g=AC.createGain(),st=t+i*.045;o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0,st);g.gain.linearRampToValueAtTime(.08,st+.012);g.gain.exponentialRampToValueAtTime(.0008,st+.3);o.connect(g).connect(AC.destination);o.start(st);o.stop(st+.35);});}catch(err){}
  }
  $('btn-play').onclick=function(){if(FX.sound)whistle();openModes();};
+ $('md-list').addEventListener('click',function(e){if(FX.sound&&e.target.closest('.mcard'))whistle();});
  $('btn-play2').onclick=function(){if(FX.sound)whistle();$('btn-online').click();};
  $('btn-party').onclick=function(){if(FX.sound)whistle();PT.preMode=null;openEntry('party');};
  $('btn-auction').onclick=function(){if(FX.sound)whistle();PT.preMode='acik';openEntry('party');$('on-title').textContent='AÇIK ARTIRMA';};
