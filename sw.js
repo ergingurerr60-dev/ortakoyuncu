@@ -1,6 +1,6 @@
 /* Vardır Birisi: offline support. Bump VERSION whenever you upload a new index.html. */
-const VERSION = 'vb-v2';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
+const VERSION = 'vb-v3';
+const SHELL = ['./', './index.html', './vb.webmanifest', './vb-icon-192.png', './vb-icon-512.png', './vb-icon-maskable-512.png', './vb-icon-180.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
