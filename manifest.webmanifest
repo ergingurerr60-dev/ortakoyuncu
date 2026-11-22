@@ -1,7 +1,7 @@
 {
-  "name": "Ortak Oyuncu",
-  "short_name": "Ortak Oyuncu",
-  "description": "İki kulüp, tek futbolcu. İlk bulan kazanır.",
+  "name": "Vardır Birisi",
+  "short_name": "Vardır Birisi",
+  "description": "İki kulüp, tek futbolcu. İlk bulan kazanır. Futbol bilgi oyunu.",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",
